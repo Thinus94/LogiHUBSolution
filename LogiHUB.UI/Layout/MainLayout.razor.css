@@ -1,77 +1,68 @@
-.page {
-    position: relative;
+.main-layout {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/images/bg2.jpg') no-repeat center center fixed;
+    background-size: cover;
 }
 
-main {
-    flex: 1;
-}
-
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
+/* ===== Glass Navigation Bar ===== */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
     display: flex;
+    justify-content: center;
     align-items: center;
+    background: linear-gradient( to bottom, rgba(10, 15, 25, 0.85), rgba(10, 15, 25, 0.55) );
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    z-index: 1000;
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
-    }
-
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
-
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-@media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
-    }
+/* ===== Navigation Container ===== */
+.nav-links {
+    display: flex;
+    gap: 2rem;
 }
 
-@media (min-width: 641px) {
-    .page {
-        flex-direction: row;
-    }
+/* ===== Button Style Links Override ===== */
+/*:global(.nav-btn) {
+    color: white !important;
+    text-decoration: none !important;
+    padding: 0.7rem 1.6rem;
+    border-radius: 40px;
+    background: rgba(255, 255, 255, 0.12);
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: all 0.25s ease;
+}*/
 
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
+/* Hover effect stays the same */
+/*:global(.nav-btn:hover) {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}*/
 
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
+/* Active page highlight */
+/*:global(.nav-btn.active) {
+    background: #4da3ff;
+    color: white !important;
+    box-shadow: 0 0 15px rgba(77, 163, 255, 0.6);
+}*/
 
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
+/* Optional: prevent visited links from turning black */
+/*.nav-links .nav-btn:visited,
+.nav-links .nav-btn:focus {
+    color: white !important;
+}*/
 
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
-    }
+/* Push content below nav */
+main {
+    margin-top: 80px;
 }

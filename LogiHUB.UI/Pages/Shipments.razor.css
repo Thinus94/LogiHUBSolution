@@ -1,0 +1,56 @@
+﻿/* Shipments.razor.css */
+
+/* Glass blur container for table */
+.page-blur-container {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10, 15, 25, 0.5);
+    padding: 2rem;
+    border-radius: 12px;
+    margin: 2rem auto;
+    max-width: 1400px; /* wider table */
+    color: white;
+}
+
+/* Header text */
+.shipments-header h3 {
+    color: white !important;
+    text-shadow: 0.5px 0.5px 2px rgba(0,0,0,0.5);
+    font-size: 2rem; /* slightly bigger */
+}
+
+/* Table styling */
+.table-glass {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 1rem; /* bigger text */
+    border-radius: 8px;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem; /* vertical spacing between rows */
+}
+
+    /* Table headers */
+    .table-glass th {
+        color: white !important;
+        border-bottom: 2px solid rgba(255,255,255,0.4);
+        padding: 0.75rem 1rem; /* more padding */
+        text-align: left;
+    }
+
+    /* Table body cells */
+    .table-glass td {
+        color: white !important;
+        padding: 0.75rem 1rem; /* more padding */
+    }
+
+    /* Row styling */
+    .table-glass tbody tr {
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.05);
+    }
+
+        /* Alternate row colors (optional) */
+        .table-glass tbody tr:nth-child(even) {
+            background: rgba(255,255,255,0.08);
+        }

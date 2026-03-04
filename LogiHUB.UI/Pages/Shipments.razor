@@ -3,63 +3,69 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Shipments</h3>
+<!-- Glass Blur Container -->
+<div class="page-blur-container">
+    <!-- Header -->
+    <div class="shipments-header d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Shipments</h3>
 
-    <button class="btn btn-success" @onclick="CreateShipment">
-        + Create Shipment
-    </button>
-</div>
+        <button class="btn btn-success" @onclick="CreateShipment">
+            + Create Shipment
+        </button>
+    </div>
 
-@if (isLoading)
-{
-    <p><em>Loading shipments...</em></p>
-}
-else if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger">@errorMessage</div>
-}
-else if (shipments.Count == 0)
-{
-    <p>No shipments found.</p>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Shipment #</th>
-                <th>Origin</th>
-                <th>Destination</th>
-                <th>Status</th>
-                <th>Pickup</th>
-                <th>Delivery</th>
-                <th>Weight (kg)</th>
-                <th>Customer</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var shipment in shipments)
-            {
+    <!-- Loading / Error / Empty State -->
+    @if (isLoading)
+    {
+        <p><em>Loading shipments...</em></p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (shipments.Count == 0)
+    {
+        <p>No shipments found.</p>
+    }
+    else
+    {
+        <!-- Table -->
+        <table class="table table-striped table-glass">
+            <thead>
                 <tr>
-                    <td>@shipment.ShipmentNumber</td>
-                    <td>@shipment.Origin</td>
-                    <td>@shipment.Destination</td>
-                    <td>@shipment.Status</td>
-                    <td>@shipment.PickupDate.ToShortDateString()</td>
-                    <td>@shipment.DeliveryDate?.ToShortDateString()</td>
-                    <td>@shipment.WeightKg</td>
-                    <td>@shipment.CustomerCode</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" @onclick="@(() => EditShipment(shipment.Id))">Edit</button>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteShipment(shipment.Id))">Delete</button>
-                    </td>
+                    <th>Shipment #</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Status</th>
+                    <th>Pickup</th>
+                    <th>Delivery</th>
+                    <th>Weight (kg)</th>
+                    <th>Customer</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var shipment in shipments)
+                {
+                    <tr>
+                        <td>@shipment.ShipmentNumber</td>
+                        <td>@shipment.Origin</td>
+                        <td>@shipment.Destination</td>
+                        <td>@shipment.Status</td>
+                        <td>@shipment.PickupDate.ToShortDateString()</td>
+                        <td>@shipment.DeliveryDate?.ToShortDateString()</td>
+                        <td>@shipment.WeightKg</td>
+                        <td>@shipment.CustomerCode</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" @onclick="@(() => EditShipment(shipment.Id))">Edit</button>
+                            <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteShipment(shipment.Id))">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
 
 @code {
     private List<Shipment> shipments = new();

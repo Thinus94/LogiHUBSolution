@@ -4,80 +4,82 @@
 @inject ShipmentService ShipmentService
 @inject NavigationManager NavigationManager
 
-<h3>@(IsEditMode ? "Edit Shipment" : "Create Shipment")</h3>
-
 @if (isLoading)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <EditForm Model="shipment"
-              OnValidSubmit="HandleValidSubmit"
-              FormName="ShipmentForm">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    <div class="page-blur-container">
+        <h3>@(IsEditMode ? "Edit Shipment" : "Create Shipment")</h3>
 
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="alert alert-danger">@errorMessage</div>
-        }
+        <EditForm Model="shipment"
+                  OnValidSubmit="HandleValidSubmit"
+                  FormName="ShipmentForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div class="mb-3">
-            <label class="form-label">Shipment Number</label>
-            <InputText class="form-control" @bind-Value="shipment.ShipmentNumber" />
-            <ValidationMessage For="@(() => shipment.ShipmentNumber)" />
-        </div>
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
 
-        <div class="mb-3">
-            <label class="form-label">Origin</label>
-            <InputText class="form-control" @bind-Value="shipment.Origin" />
-            <ValidationMessage For="@(() => shipment.Origin)" />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Shipment Number</label>
+                <InputText class="form-control" @bind-Value="shipment.ShipmentNumber" />
+                <ValidationMessage For="@(() => shipment.ShipmentNumber)" />
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Destination</label>
-            <InputText class="form-control" @bind-Value="shipment.Destination" />
-            <ValidationMessage For="@(() => shipment.Destination)" />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Origin</label>
+                <InputText class="form-control" @bind-Value="shipment.Origin" />
+                <ValidationMessage For="@(() => shipment.Origin)" />
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Status</label>
-            <InputText class="form-control" @bind-Value="shipment.Status" />
-            <ValidationMessage For="@(() => shipment.Status)" />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Destination</label>
+                <InputText class="form-control" @bind-Value="shipment.Destination" />
+                <ValidationMessage For="@(() => shipment.Destination)" />
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Pickup Date</label>
-            <InputDate class="form-control" @bind-Value="shipment.PickupDate" />
-            <ValidationMessage For="@(() => shipment.PickupDate)" />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <InputText class="form-control" @bind-Value="shipment.Status" />
+                <ValidationMessage For="@(() => shipment.Status)" />
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Delivery Date</label>
-            <InputDate class="form-control" @bind-Value="shipment.DeliveryDate" />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Pickup Date</label>
+                <InputDate class="form-control" @bind-Value="shipment.PickupDate" />
+                <ValidationMessage For="@(() => shipment.PickupDate)" />
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Weight (kg)</label>
-            <InputNumber class="form-control" @bind-Value="shipment.WeightKg" />
-            <ValidationMessage For="@(() => shipment.WeightKg)" />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Delivery Date</label>
+                <InputDate class="form-control" @bind-Value="shipment.DeliveryDate" />
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Customer Code</label>
-            <InputText class="form-control" @bind-Value="shipment.CustomerCode" />
-            <ValidationMessage For="@(() => shipment.CustomerCode)" />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Weight (kg)</label>
+                <InputNumber class="form-control" @bind-Value="shipment.WeightKg" />
+                <ValidationMessage For="@(() => shipment.WeightKg)" />
+            </div>
 
-        <button type="submit" class="btn btn-success me-2">
-            @(IsEditMode ? "Update" : "Create")
-        </button>
+            <div class="mb-3">
+                <label class="form-label">Customer Code</label>
+                <InputText class="form-control" @bind-Value="shipment.CustomerCode" />
+                <ValidationMessage For="@(() => shipment.CustomerCode)" />
+            </div>
 
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">
-            Cancel
-        </button>
-    </EditForm>
+            <button type="submit" class="btn btn-success me-2">
+                @(IsEditMode ? "Update" : "Create")
+            </button>
+
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                Cancel
+            </button>
+        </EditForm>
+    </div>
 }
 
 @code {
