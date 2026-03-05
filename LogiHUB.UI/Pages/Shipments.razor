@@ -55,7 +55,7 @@
                         <td>@shipment.PickupDate.ToShortDateString()</td>
                         <td>@shipment.DeliveryDate?.ToShortDateString()</td>
                         <td>@shipment.WeightKg</td>
-                        <td>@shipment.Customer?.Name</td>
+                        <td>@shipment.CustomerName</td>
                         <td>
                             <button class="btn btn-sm btn-primary" @onclick="@(() => EditShipment(shipment.Id))">Edit</button>
                             <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteShipment(shipment.Id))">Delete</button>
@@ -68,7 +68,7 @@
 </div>
 
 @code {
-    private List<Shipment> shipments = new();
+    private List<ShipmentResponseDto> shipments = new();
     private bool isLoading = true;
     private string? errorMessage;
 

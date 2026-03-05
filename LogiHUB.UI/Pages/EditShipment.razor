@@ -29,12 +29,15 @@ else
 
             @if (IsEditMode)
             {
-                <div class="mb-3">
-                    <label class="form-label">Shipment Number</label>
-                    <InputText class="form-control"
-                               @bind-Value="editDto.ShipmentNumber"
-                               readonly />
-                </div>
+                @if (IsEditMode)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Shipment Number</label>
+                        <InputText class="form-control"
+                                   @bind-Value="ShipmentNumber"
+                                   readonly />
+                    </div>
+                }
 
                 <div class="mb-3">
                     <label class="form-label">Status</label>
@@ -186,28 +189,28 @@ else
 
             if (IsEditMode)
             {
-                var shipment = await ShipmentService.GetByIdAsync(Id!.Value);
-
-                if (shipment == null)
+                var shipmentResponse = await ShipmentService.GetByIdAsync(Id!.Value);
+                if (shipmentResponse == null)
                 {
                     errorMessage = "Shipment not found.";
                     return;
                 }
 
-                ShipmentNumber = shipment.ShipmentNumber;
-
+                // Map to editDto
                 editDto = new UpdateShipmentDto
                 {
-                    Id = shipment.Id,
-                    ShipmentNumber = shipment.ShipmentNumber,
-                    Origin = shipment.Origin,
-                    Destination = shipment.Destination,
-                    PickupDate = shipment.PickupDate,
-                    DeliveryDate = shipment.DeliveryDate,
-                    WeightKg = shipment.WeightKg,
-                    CustomerId = shipment.CustomerId,
-                    Status = shipment.Status
+                    Id = shipmentResponse.Id,
+                    Status = shipmentResponse.Status,
+                    Origin = shipmentResponse.Origin,
+                    Destination = shipmentResponse.Destination,
+                    PickupDate = shipmentResponse.PickupDate,
+                    DeliveryDate = shipmentResponse.DeliveryDate,
+                    WeightKg = shipmentResponse.WeightKg,
+                    CustomerId = shipmentResponse.CustomerId
                 };
+
+                // Store ShipmentNumber separately for display
+                ShipmentNumber = shipmentResponse.ShipmentNumber;
             }
             else
             {

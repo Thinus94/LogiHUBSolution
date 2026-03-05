@@ -14,8 +14,9 @@ namespace LogiHUB.API.Mapping
             // Update
             CreateMap<UpdateShipmentDto, Shipment>();
 
-            // Entity -> DTO (optional but recommended)
-            CreateMap<Shipment, UpdateShipmentDto>();
+            // Entity -> Response DTO
+            CreateMap<Shipment, ShipmentResponseDto>()
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer!.Name));
         }
     }
 }

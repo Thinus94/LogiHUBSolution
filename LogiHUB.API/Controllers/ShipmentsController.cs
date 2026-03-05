@@ -21,43 +21,46 @@ namespace LogiHUB.API.Controllers
 
         // GET: api/shipments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Shipment>>> GetAll()
+        public async Task<ActionResult<IEnumerable<ShipmentResponseDto>>> GetAll()
         {
-            return await _context.Shipments
-                .Include(s => s.Customer) // <--- include the customer
+            var shipments = await _context.Shipments
+                .Include(s => s.Customer)
                 .ToListAsync();
+
+            var response = _mapper.Map<List<ShipmentResponseDto>>(shipments);
+            return Ok(response);
         }
 
         // GET: api/shipments/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Shipment>> GetById(Guid id)
+        public async Task<ActionResult<ShipmentResponseDto>> GetById(Guid id)
         {
-            var shipment = await _context.Shipments.FindAsync(id);
-            return shipment == null ? NotFound() : shipment;
+            var shipment = await _context.Shipments
+                .Include(s => s.Customer)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (shipment == null) return NotFound();
+
+            var response = _mapper.Map<ShipmentResponseDto>(shipment);
+            return Ok(response);
         }
 
         // POST: api/shipments
         [HttpPost]
-        public async Task<ActionResult<Shipment>> Create(CreateShipmentDto dto)
+        public async Task<ActionResult<ShipmentResponseDto>> Create(CreateShipmentDto dto)
         {
             var shipment = _mapper.Map<Shipment>(dto);
             shipment.Id = Guid.NewGuid();
             shipment.ShipmentNumber = $"SN-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
-            shipment.Status = "Created"; // auto
+            shipment.Status = "Created";
 
             _context.Shipments.Add(shipment);
+            await _context.SaveChangesAsync();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                // Log the exception
-                return StatusCode(500, $"Error saving shipment: {ex.Message}");
-            }
+            await _context.Entry(shipment).Reference(s => s.Customer).LoadAsync(); // ensure customer is loaded
+            var response = _mapper.Map<ShipmentResponseDto>(shipment);
 
-            return CreatedAtAction(nameof(GetById), new { id = shipment.Id }, shipment);
+            return CreatedAtAction(nameof(GetById), new { id = shipment.Id }, response);
         }
 
         // PUT: api/shipments/{id}
@@ -68,18 +71,8 @@ namespace LogiHUB.API.Controllers
             if (shipment == null) return NotFound();
 
             _mapper.Map(dto, shipment);
+            await _context.SaveChangesAsync();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ShipmentExists(id)) 
-                    return NotFound();
-
-                throw;
-            }
             return NoContent();
         }
 
@@ -89,16 +82,12 @@ namespace LogiHUB.API.Controllers
         {
             var shipment = await _context.Shipments.FindAsync(id);
             if (shipment == null) return NotFound();
+
             _context.Shipments.Remove(shipment);
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
-
-        private bool ShipmentExists(Guid id)
-        {
-            return _context.Shipments.Any(e => e.Id == id);
-        }
-
     }
 }
 

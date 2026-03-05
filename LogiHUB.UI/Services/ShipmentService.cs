@@ -14,15 +14,15 @@ namespace LogiHUB.UI.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<Shipment>> GetAllAsync()
+        public async Task<List<ShipmentResponseDto>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Shipment>>("api/shipments")
-                   ?? new List<Shipment>();
+            return await _httpClient.GetFromJsonAsync<List<ShipmentResponseDto>>("api/shipments")
+                   ?? new List<ShipmentResponseDto>();
         }
 
-        public async Task<Shipment?> GetByIdAsync(Guid id)
+        public async Task<ShipmentResponseDto?> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<Shipment>($"api/shipments/{id}");
+            return await _httpClient.GetFromJsonAsync<ShipmentResponseDto>($"api/shipments/{id}");
         }
 
         public async Task CreateAsync(CreateShipmentDto dto)
