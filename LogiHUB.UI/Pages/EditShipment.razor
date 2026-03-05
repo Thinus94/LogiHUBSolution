@@ -2,6 +2,7 @@
 @page "/edit-shipment/{Id:guid}"
 
 @inject ShipmentService ShipmentService
+@inject CustomerService CustomerService
 @inject NavigationManager NavigationManager
 
 @if (isLoading)
@@ -10,12 +11,14 @@
 }
 else
 {
+
     <div class="page-blur-container">
         <h3>@(IsEditMode ? "Edit Shipment" : "Create Shipment")</h3>
 
-        <EditForm Model="shipment"
+        <EditForm Model="FormModel"
                   OnValidSubmit="HandleValidSubmit"
                   FormName="ShipmentForm">
+
             <DataAnnotationsValidator />
             <ValidationSummary />
 
@@ -24,101 +27,200 @@ else
                 <div class="alert alert-danger">@errorMessage</div>
             }
 
-            <div class="mb-3">
-                <label class="form-label">Shipment Number</label>
-                <InputText class="form-control" @bind-Value="shipment.ShipmentNumber" />
-                <ValidationMessage For="@(() => shipment.ShipmentNumber)" />
-            </div>
+            @if (IsEditMode)
+            {
+                <div class="mb-3">
+                    <label class="form-label">Shipment Number</label>
+                    <InputText class="form-control"
+                               @bind-Value="editDto.ShipmentNumber"
+                               readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <InputText class="form-control"
+                               @bind-Value="editDto.Status" />
+                    <ValidationMessage For="@(() => editDto.Status)" />
+                </div>
+            }
 
             <div class="mb-3">
                 <label class="form-label">Origin</label>
-                <InputText class="form-control" @bind-Value="shipment.Origin" />
-                <ValidationMessage For="@(() => shipment.Origin)" />
+
+                @if (IsEditMode)
+                {
+                    <InputText class="form-control" @bind-Value="editDto.Origin" />
+                    <ValidationMessage For="@(() => editDto.Origin)" />
+                }
+                else
+                {
+                    <InputText class="form-control" @bind-Value="createDto.Origin" />
+                    <ValidationMessage For="@(() => createDto.Origin)" />
+                }
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Destination</label>
-                <InputText class="form-control" @bind-Value="shipment.Destination" />
-                <ValidationMessage For="@(() => shipment.Destination)" />
-            </div>
 
-            <div class="mb-3">
-                <label class="form-label">Status</label>
-                <InputText class="form-control" @bind-Value="shipment.Status" />
-                <ValidationMessage For="@(() => shipment.Status)" />
+                @if (IsEditMode)
+                {
+                    <InputText class="form-control" @bind-Value="editDto.Destination" />
+                    <ValidationMessage For="@(() => editDto.Destination)" />
+                }
+                else
+                {
+                    <InputText class="form-control" @bind-Value="createDto.Destination" />
+                    <ValidationMessage For="@(() => createDto.Destination)" />
+                }
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Pickup Date</label>
-                <InputDate class="form-control" @bind-Value="shipment.PickupDate" />
-                <ValidationMessage For="@(() => shipment.PickupDate)" />
+
+                @if (IsEditMode)
+                {
+                    <InputDate class="form-control" @bind-Value="editDto.PickupDate" />
+                    <ValidationMessage For="@(() => editDto.PickupDate)" />
+                }
+                else
+                {
+                    <InputDate class="form-control" @bind-Value="createDto.PickupDate" />
+                    <ValidationMessage For="@(() => createDto.PickupDate)" />
+                }
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Delivery Date</label>
-                <InputDate class="form-control" @bind-Value="shipment.DeliveryDate" />
+
+                @if (IsEditMode)
+                {
+                    <InputDate class="form-control" @bind-Value="editDto.DeliveryDate" />
+                }
+                else
+                {
+                    <InputDate class="form-control" @bind-Value="createDto.DeliveryDate" />
+                }
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Weight (kg)</label>
-                <InputNumber class="form-control" @bind-Value="shipment.WeightKg" />
-                <ValidationMessage For="@(() => shipment.WeightKg)" />
+
+                @if (IsEditMode)
+                {
+                    <InputNumber class="form-control" @bind-Value="editDto.WeightKg" />
+                    <ValidationMessage For="@(() => editDto.WeightKg)" />
+                }
+                else
+                {
+                    <InputNumber class="form-control" @bind-Value="createDto.WeightKg" />
+                    <ValidationMessage For="@(() => createDto.WeightKg)" />
+                }
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Customer Code</label>
-                <InputText class="form-control" @bind-Value="shipment.CustomerCode" />
-                <ValidationMessage For="@(() => shipment.CustomerCode)" />
-            </div>
+                <label class="form-label">Customer</label>
 
-            <button type="submit" class="btn btn-success me-2">
-                @(IsEditMode ? "Update" : "Create")
-            </button>
+                @if (IsEditMode)
+                {
+                    <InputSelect class="form-control" @bind-Value="editDto.CustomerId">
+                        <option value="">-- Select Customer --</option>
+                        @foreach (var c in customers)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => editDto.CustomerId)" />
+                }
+                else
+                {
+                    <InputSelect class="form-control" @bind-Value="createDto.CustomerId">
+                        <option value="">-- Select Customer --</option>
+                        @foreach (var c in customers)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => createDto.CustomerId)" />
+                }
+        </div>
 
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">
-                Cancel
-            </button>
-        </EditForm>
-    </div>
+        <button type="submit" class="btn btn-success me-2">
+            @(IsEditMode ? "Update" : "Create")
+        </button>
+
+        <button type="button"
+                class="btn btn-secondary"
+                @onclick="Cancel">
+            Cancel
+        </button>
+
+    </EditForm>
+</div>
 }
 
 @code {
-    [Parameter] public Guid? Id { get; set; }
 
-    private Shipment shipment = new();
-    private bool isLoading = false;
+[Parameter] public Guid? Id { get; set; }
+
     private bool IsEditMode => Id.HasValue;
+    private bool isLoading = false;
+
     private string? errorMessage;
+
+    private List<Customer> customers = new();
+
+    private CreateShipmentDto createDto = new();
+    private UpdateShipmentDto editDto = new();
+
+    private string ShipmentNumber = "";
+
+    private object FormModel => IsEditMode ? editDto : createDto;
 
     protected override async Task OnInitializedAsync()
     {
-        if (IsEditMode)
+        try
         {
-            try
-            {
-                isLoading = true;
-                var existing = await ShipmentService.GetByIdAsync(Id!.Value);
+            isLoading = true;
 
-                if (existing == null)
+            customers = await CustomerService.GetAllAsync();
+
+            if (IsEditMode)
+            {
+                var shipment = await ShipmentService.GetByIdAsync(Id!.Value);
+
+                if (shipment == null)
                 {
                     errorMessage = "Shipment not found.";
                     return;
                 }
 
-                shipment = existing;
+                ShipmentNumber = shipment.ShipmentNumber;
+
+                editDto = new UpdateShipmentDto
+                {
+                    Id = shipment.Id,
+                    ShipmentNumber = shipment.ShipmentNumber,
+                    Origin = shipment.Origin,
+                    Destination = shipment.Destination,
+                    PickupDate = shipment.PickupDate,
+                    DeliveryDate = shipment.DeliveryDate,
+                    WeightKg = shipment.WeightKg,
+                    CustomerId = shipment.CustomerId,
+                    Status = shipment.Status
+                };
             }
-            catch (Exception ex)
+            else
             {
-                errorMessage = $"Error loading shipment: {ex.Message}";
-            }
-            finally
-            {
-                isLoading = false;
+                createDto.PickupDate = DateTime.Today;
             }
         }
-        else
+        catch (Exception ex)
         {
-            shipment.PickupDate = DateTime.Today;
+            errorMessage = $"Error loading data: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
@@ -128,11 +230,11 @@ else
         {
             if (IsEditMode)
             {
-                await ShipmentService.UpdateAsync(shipment);
+                await ShipmentService.UpdateAsync(editDto);
             }
             else
             {
-                await ShipmentService.CreateAsync(shipment);
+                await ShipmentService.CreateAsync(createDto);
             }
 
             NavigationManager.NavigateTo("/shipments");
@@ -147,4 +249,5 @@ else
     {
         NavigationManager.NavigateTo("/shipments");
     }
+
 }

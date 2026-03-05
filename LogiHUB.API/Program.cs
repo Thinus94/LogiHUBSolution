@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using LogiHUB.API.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Add Swagger/OpenAI
 builder.Services.AddEndpointsApiExplorer();

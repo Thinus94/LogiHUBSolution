@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LogiHUB.Shared.Models;
+using LogiHUB.Shared.DTOs;
+using AutoMapper;
 
 namespace LogiHUB.API.Controllers
 {
@@ -9,17 +11,21 @@ namespace LogiHUB.API.Controllers
     public class ShipmentsController : ControllerBase
     {
         private readonly ShipmentDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ShipmentsController(ShipmentDbContext context)
+        public ShipmentsController(ShipmentDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/shipments
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Shipment>>> GetAll()
         {
-            return await _context.Shipments.ToListAsync();
+            return await _context.Shipments
+                .Include(s => s.Customer) // <--- include the customer
+                .ToListAsync();
         }
 
         // GET: api/shipments/{id}
@@ -32,15 +38,13 @@ namespace LogiHUB.API.Controllers
 
         // POST: api/shipments
         [HttpPost]
-        public async Task<ActionResult<Shipment>> Create(Shipment shipment)
+        public async Task<ActionResult<Shipment>> Create(CreateShipmentDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (shipment == null)
-                return BadRequest("Shipment cannot be null.");
-
+            var shipment = _mapper.Map<Shipment>(dto);
             shipment.Id = Guid.NewGuid();
+            shipment.ShipmentNumber = $"SN-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+            shipment.Status = "Created"; // auto
+
             _context.Shipments.Add(shipment);
 
             try
@@ -53,37 +57,17 @@ namespace LogiHUB.API.Controllers
                 return StatusCode(500, $"Error saving shipment: {ex.Message}");
             }
 
-            return CreatedAtAction(
-                actionName: nameof(GetById),
-                routeValues: new { id = shipment.Id },
-                value: shipment
-            );
+            return CreatedAtAction(nameof(GetById), new { id = shipment.Id }, shipment);
         }
 
         // PUT: api/shipments/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, Shipment shipment)
+        public async Task<IActionResult> Update(Guid id, UpdateShipmentDto dto)
         {
-            if (!ModelState.IsValid) 
-                return BadRequest(ModelState);
+            var shipment = await _context.Shipments.FindAsync(id);
+            if (shipment == null) return NotFound();
 
-            if (id != shipment.Id) 
-                return BadRequest("Shipment ID mismatch!");
-
-            var existingShipment = await _context.Shipments.FindAsync(id);
-
-            if (existingShipment == null) 
-                return NotFound();
-
-            // Update only allowed properties
-            existingShipment.ShipmentNumber = shipment.ShipmentNumber;
-            existingShipment.Origin = shipment.Origin;
-            existingShipment.Destination = shipment.Destination;
-            existingShipment.Status = shipment.Status;
-            existingShipment.PickupDate = shipment.PickupDate;
-            existingShipment.DeliveryDate = shipment.DeliveryDate;
-            existingShipment.WeightKg = shipment.WeightKg;
-            existingShipment.CustomerCode = shipment.CustomerCode;
+            _mapper.Map(dto, shipment);
 
             try
             {

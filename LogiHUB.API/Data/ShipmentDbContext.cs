@@ -8,4 +8,15 @@ public class ShipmentDbContext : DbContext
     }
 
     public DbSet<Shipment> Shipments => Set<Shipment>();
+
+    public DbSet<Customer> Customers => Set<Customer>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Shipment>()
+            .HasOne(s => s.Customer)
+            .WithMany(c => c.Shipments)
+            .HasForeignKey(s => s.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
 }

@@ -1,6 +1,7 @@
-﻿using System.Net.Http;
-using System.Net.Http.Json;
+﻿using LogiHUB.Shared.DTOs;
 using LogiHUB.Shared.Models;
+using System.Net.Http;
+using System.Net.Http.Json;
 
 namespace LogiHUB.UI.Services
 {
@@ -24,17 +25,15 @@ namespace LogiHUB.UI.Services
             return await _httpClient.GetFromJsonAsync<Shipment>($"api/shipments/{id}");
         }
 
-        public async Task<Shipment> CreateAsync(Shipment shipment)
+        public async Task CreateAsync(CreateShipmentDto dto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/shipments", shipment);
+            var response = await _httpClient.PostAsJsonAsync("api/shipments", dto);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Shipment>()
-                   ?? throw new Exception("Failed to deserialize shipment.");
         }
 
-        public async Task UpdateAsync(Shipment shipment)
+        public async Task UpdateAsync(UpdateShipmentDto dto)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/shipments/{shipment.Id}", shipment);
+            var response = await _httpClient.PutAsJsonAsync($"api/shipments/{dto.Id}", dto);
             response.EnsureSuccessStatusCode();
         }
 
