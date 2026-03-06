@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using LogiHUB.Shared.Models;
+﻿using AutoMapper;
+using LogiHUB.API.Constants;
 using LogiHUB.Shared.DTOs;
-using AutoMapper;
+using LogiHUB.Shared.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LogiHUB.API.Controllers
 {
@@ -21,14 +22,47 @@ namespace LogiHUB.API.Controllers
 
         // GET: api/shipments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ShipmentResponseDto>>> GetAll()
+        public async Task<ActionResult<PagedResult<ShipmentResponseDto>>> GetAll([FromQuery] ShipmentQueryDto query)
         {
-            var shipments = await _context.Shipments
+            var shipmentsQuery = _context.Shipments
                 .Include(s => s.Customer)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                shipmentsQuery = shipmentsQuery.Where(s =>
+                    s.ShipmentNumber.Contains(query.Search) ||
+                    s.Origin.Contains(query.Search) ||
+                    s.Destination.Contains(query.Search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Status))
+            {
+                shipmentsQuery = shipmentsQuery.Where(s => s.Status == query.Status);
+            }
+
+            if (query.CustomerId.HasValue)
+            {
+                shipmentsQuery = shipmentsQuery.Where(s => s.CustomerId == query.CustomerId);
+            }
+
+            var totalCount = await shipmentsQuery.CountAsync();
+
+            var shipments = await shipmentsQuery
+                .OrderByDescending(s => s.CreatedDate)
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
                 .ToListAsync();
 
-            var response = _mapper.Map<List<ShipmentResponseDto>>(shipments);
-            return Ok(response);
+            var result = new PagedResult<ShipmentResponseDto>
+            {
+                Items = _mapper.Map<List<ShipmentResponseDto>>(shipments),
+                TotalCount = totalCount,
+                PageNumber = query.PageNumber,
+                PageSize = query.PageSize
+            };
+
+            return Ok(result);
         }
 
         // GET: api/shipments/{id}
@@ -52,7 +86,8 @@ namespace LogiHUB.API.Controllers
             var shipment = _mapper.Map<Shipment>(dto);
             shipment.Id = Guid.NewGuid();
             shipment.ShipmentNumber = $"SN-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
-            shipment.Status = "Created";
+            shipment.Status = ShipmentStatuses.Created;
+            shipment.CreatedDate = DateTime.UtcNow;
 
             _context.Shipments.Add(shipment);
             await _context.SaveChangesAsync();
@@ -67,6 +102,14 @@ namespace LogiHUB.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, UpdateShipmentDto dto)
         {
+            if (id != dto.Id)
+                return BadRequest();
+
+            if (!ShipmentStatuses.All.Contains(dto.Status))
+            {
+                return BadRequest("Invalid shipment status.");
+            }
+
             var shipment = await _context.Shipments.FindAsync(id);
             if (shipment == null) return NotFound();
 

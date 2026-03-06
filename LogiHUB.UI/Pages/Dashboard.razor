@@ -3,41 +3,68 @@
 @inject HttpClient Http
 
 <div class="dashboard">
-
     <h2>Dashboard</h2>
 
-    <div class="stats-grid">
+    <div class="dashboard-groups">
 
-        <div class="stat-card">
-            <h3>Shipments</h3>
-            <p>@shipmentCount</p>
+        <!-- Totals Group -->
+        <div class="dashboard-card">
+            <h3 class="card-title">Totals</h3>
+            <div class="dashboard-group totals-group">
+                <div class="stat-card stat-card-shipments">
+                    <h4>Shipments</h4>
+                    <p>@shipmentCount</p>
+                </div>
+
+                <div class="stat-card stat-card-customers">
+                    <h4>Customers</h4>
+                    <p>@customerCount</p>
+                </div>
+            </div>
         </div>
 
-        <div class="stat-card">
-            <h3>In Transit</h3>
-            <p>@inTransitCount</p>
-        </div>
+        <!-- Statuses Group -->
+        <div class="dashboard-card">
+            <h3 class="card-title">Shipment Statuses</h3>
+            <div class="dashboard-group statuses-group">
+                <div class="stat-card stat-card-created">
+                    <h4>Created</h4>
+                    <p>@createdCount</p>
+                </div>
 
-        <div class="stat-card">
-            <h3>Delivered</h3>
-            <p>@deliveredCount</p>
-        </div>
+                <div class="stat-card stat-card-intransit">
+                    <h4>In Transit</h4>
+                    <p>@inTransitCount</p>
+                </div>
 
-        <div class="stat-card">
-            <h3>Customers</h3>
-            <p>@customerCount</p>
+                <div class="stat-card stat-card-delivered">
+                    <h4>Delivered</h4>
+                    <p>@deliveredCount</p>
+                </div>
+
+                <div class="stat-card stat-card-delayed">
+                    <h4>Delayed</h4>
+                    <p>@delayedCount</p>
+                </div>
+
+                <div class="stat-card stat-card-cancelled">
+                    <h4>Cancelled</h4>
+                    <p>@cancelledCount</p>
+                </div>
+            </div>
         </div>
 
     </div>
-
 </div>
 
 @code {
-
     private int shipmentCount;
-    private int deliveredCount;
-    private int inTransitCount;
     private int customerCount;
+    private int createdCount;
+    private int inTransitCount;
+    private int deliveredCount;
+    private int delayedCount;
+    private int cancelledCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,18 +75,25 @@
     {
         try
         {
-            var shipments = await Http.GetFromJsonAsync<List<ShipmentResponseDto>>("api/shipments");
+            var shipmentResult = await Http.GetFromJsonAsync<PagedResult<ShipmentResponseDto>>(
+                "api/shipments?pageNumber=1&pageSize=1000");
+
             var customers = await Http.GetFromJsonAsync<List<CustomerResponseDto>>("api/customers");
 
-            shipmentCount = shipments.Count;
-            deliveredCount = shipments.Count(s => s.Status == "Delivered");
-            inTransitCount = shipments.Count(s => s.Status == "In Transit");
+            var shipments = shipmentResult?.Items ?? new List<ShipmentResponseDto>();
 
-            customerCount = customers.Count;
+            shipmentCount = shipments.Count;
+            customerCount = customers?.Count ?? 0;
+
+            createdCount = shipments.Count(s => s.Status == "Created");
+            inTransitCount = shipments.Count(s => s.Status == "In Transit");
+            deliveredCount = shipments.Count(s => s.Status == "Delivered");
+            delayedCount = shipments.Count(s => s.Status == "Delayed");
+            cancelledCount = shipments.Count(s => s.Status == "Cancelled");
         }
         catch
         {
-            // ignore errors for now
+            // ignore errors
         }
     }
 }

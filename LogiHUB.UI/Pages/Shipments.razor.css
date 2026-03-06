@@ -101,3 +101,90 @@
     .table-glass tbody tr:hover {
         background: rgba(255,255,255,0.15);
     }
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Status Colors */
+
+.status-created {
+    background: #6c757d;
+}
+
+.status-transit {
+    background: #0d6efd;
+}
+
+.status-delivered {
+    background: #198754;
+}
+
+.status-delayed {
+    background: #ffc107;
+    color: black;
+}
+
+.status-cancelled {
+    background: #dc3545;
+}
+
+/* Filter Panel */
+
+.filter-panel {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+}
+
+    /* Search Input */
+    .filter-panel input {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 6px;
+        color: white;
+        padding: 0.5rem 0.75rem;
+    }
+
+        .filter-panel input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .filter-panel input:focus {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(77,163,255,0.8);
+            outline: none;
+        }
+
+    /* Dropdown Selects */
+    .filter-panel select {
+        color: white;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        backdrop-filter: blur(12px);
+        appearance: none; /* hide default arrow for better styling */
+    }
+
+        .filter-panel select:focus {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(77,163,255,0.8);
+            outline: none;
+        }
+
+        /* Option Items (dropdown menu) */
+        .filter-panel select option {
+            color: black; /*change to white if you use a dark menu background via JS or custom library */
+            background: rgba(255,255,255,0.05); /*match blur style*/
+            backdrop-filter: blur(12px);
+        }

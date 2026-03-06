@@ -29,6 +29,37 @@
     }
     else
     {
+        <div class="filter-panel">
+
+            <input class="form-control"
+                   placeholder="Search shipments..."
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   @bind:after="OnFilterChanged" />
+
+            <select class="form-select"
+                    @bind="statusFilter"
+                    @bind:after="OnFilterChanged">
+                <option value="">All Statuses</option>
+                <option value="Created">Created</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Delayed">Delayed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+
+            <select class="form-select"
+                    @bind="pageSize"
+                    @bind:after="OnFilterChanged">
+
+                <option @value="10">10</option>
+                <option @value="25">25</option>
+                <option @value="50">50</option>
+
+            </select>
+
+        </div>
+
         <!-- Table -->
         <div class="table-responsive table-container">
             <table class="table table-glass table-hover">
@@ -52,19 +83,50 @@
                         <td>@shipment.ShipmentNumber</td>
                         <td>@shipment.Origin</td>
                         <td>@shipment.Destination</td>
-                        <td>@shipment.Status</td>
+                        <td>
+                            <span class="status-badge @GetStatusClass(shipment.Status)">
+                                @shipment.Status
+                            </span>
+                        </td>
                         <td>@shipment.PickupDate.ToShortDateString()</td>
                         <td>@shipment.DeliveryDate?.ToShortDateString()</td>
                         <td>@shipment.WeightKg</td>
                         <td>@shipment.CustomerName</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" @onclick="@(() => EditShipment(shipment.Id))">Edit</button>
-                            <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteShipment(shipment.Id))">Delete</button>
+                            <button class="btn btn-sm btn-primary"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="@(() => EditShipment(shipment.Id))">
+                                Edit
+                            </button>
+
+                            <button class="btn btn-sm btn-danger"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="@(() => DeleteShipment(shipment.Id))">
+                                Delete
+                            </button>
                         </td>
                     </tr>
                 }
                 </tbody>
             </table>
+        </div>
+
+        <div class="pagination-controls">
+
+            <button class="btn btn-secondary"
+                    disabled="@(pageNumber == 1)"
+                    @onclick="PrevPage">
+                Previous
+            </button>
+
+            <span>Page @pageNumber</span>
+
+            <button class="btn btn-secondary"
+                    disabled="@((pageNumber * pageSize) >= totalCount)"
+                    @onclick="NextPage">
+                Next
+            </button>
+
         </div>
 
         @if (showShipmentModal && selectedShipment != null)
@@ -87,7 +149,7 @@
                         <p><b>Delivery:</b> @selectedShipment.DeliveryDate?.ToShortDateString()</p>
                         <p><b>Weight:</b> @selectedShipment.WeightKg kg</p>
                         <p><b>Customer:</b> @selectedShipment.CustomerName</p>
-
+                        <ShipmentTimeline Status="@selectedShipment.Status" />
                     </div>
 
                     <div class="modal-footer">
@@ -114,6 +176,13 @@
     private bool showShipmentModal = false;
     private bool isLoading = true;
     private string? errorMessage;
+    string searchTerm = "";
+    string statusFilter = "";
+
+    int pageNumber = 1;
+    int pageSize = 10;
+
+    int totalCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -125,7 +194,15 @@
         try
         {
             isLoading = true;
-            shipments = await ShipmentService.GetAllAsync();
+            var result = await ShipmentService.GetAllAsync(
+                searchTerm,
+                statusFilter,
+                null,
+                pageNumber,
+                pageSize);
+
+            shipments = result.Items;
+            totalCount = result.TotalCount;
         }
         catch (Exception ex)
         {
@@ -135,6 +212,37 @@
         {
             isLoading = false;
         }
+    }
+
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Created" => "status-created",
+            "In Transit" => "status-transit",
+            "Delivered" => "status-delivered",
+            "Delayed" => "status-delayed",
+            "Cancelled" => "status-cancelled",
+            _ => ""
+        };
+    }
+
+    async Task OnFilterChanged()
+    {
+        pageNumber = 1;
+        await LoadShipments();
+    }
+
+    async Task NextPage()
+    {
+        pageNumber++;
+        await LoadShipments();
+    }
+
+    async Task PrevPage()
+    {
+        pageNumber--;
+        await LoadShipments();
     }
 
     private void OpenShipment(ShipmentResponseDto shipment)

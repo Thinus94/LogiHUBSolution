@@ -14,10 +14,31 @@ namespace LogiHUB.UI.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<ShipmentResponseDto>> GetAllAsync()
+        public async Task<PagedResult<ShipmentResponseDto>> GetAllAsync(
+            string search,
+            string status,
+            Guid? customerId,
+            int page,
+            int pageSize)
         {
-            return await _httpClient.GetFromJsonAsync<List<ShipmentResponseDto>>("api/shipments")
-                   ?? new List<ShipmentResponseDto>();
+            var parameters = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                parameters.Add($"search={search}");
+
+            if (!string.IsNullOrWhiteSpace(status))
+                parameters.Add($"status={status}");
+
+            if (customerId.HasValue)
+                parameters.Add($"customerId={customerId}");
+
+            parameters.Add($"pageNumber={page}");
+            parameters.Add($"pageSize={pageSize}");
+
+            var url = "api/shipments?" + string.Join("&", parameters);
+
+            return await _httpClient.GetFromJsonAsync<PagedResult<ShipmentResponseDto>>(url)
+                   ?? new PagedResult<ShipmentResponseDto>();
         }
 
         public async Task<ShipmentResponseDto?> GetByIdAsync(Guid id)

@@ -50,7 +50,7 @@ namespace LogiHUB.API.Controllers
         public async Task<ActionResult<CustomerResponseDto>> Create(CreateCustomerDto dto)
         {
             var customer = _mapper.Map<Customer>(dto);
-
+            customer.CreatedDate = DateTime.UtcNow;
             _context.Customers.Add(customer);
 
             await _context.SaveChangesAsync();

@@ -36,5 +36,7 @@ namespace LogiHUB.Shared.Models
 
         [ForeignKey(nameof(CustomerId))]
         public Customer? Customer { get; set; }
+
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
 }

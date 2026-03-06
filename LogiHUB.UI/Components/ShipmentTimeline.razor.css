@@ -1,0 +1,25 @@
+﻿.timeline-item {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(6px);
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+}
+
+    .timeline-item.done {
+        background: #198754; /* green for completed steps */
+        color: white;
+    }
+
+    .timeline-item.delayed {
+        background: #ffc107; /* yellow */
+        color: black;
+    }
+
+    .timeline-item.cancelled {
+        background: #dc3545; /* red */
+        color: white;
+    }

@@ -41,8 +41,13 @@ else
 
                 <div class="mb-3">
                     <label class="form-label">Status</label>
-                    <InputText class="form-control"
-                               @bind-Value="editDto.Status" />
+                    <InputSelect class="form-control" @bind-Value="editDto.Status">
+                        <option value="Created">Created</option>
+                        <option value="In Transit">In Transit</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </InputSelect>
                     <ValidationMessage For="@(() => editDto.Status)" />
                 </div>
             }

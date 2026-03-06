@@ -1,0 +1,45 @@
+﻿@using System.ComponentModel.DataAnnotations
+<div class="timeline">
+    @foreach (var stage in StatusOrder)
+    {
+        <div class="timeline-item @(GetStatusClass(stage))">
+            @stage
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, Required]
+    public string Status { get; set; } = string.Empty;
+
+    private List<string> StatusOrder = new()
+    {
+        "Created",
+        "In Transit",
+        "Delivered",
+        "Delayed",
+        "Cancelled"
+    };
+
+    string GetStatusClass(string stage)
+    {
+        // Cancelled shipment
+        if (Status == "Cancelled")
+        {
+            if (stage == "Created") return "done";
+            if (stage == "Cancelled") return "cancelled";
+            return ""; // all others remain neutral
+        }
+
+        // Delayed shipment
+        if (Status == "Delayed")
+        {
+            if (stage == "Created" || stage == "In Transit") return "done";
+            if (stage == "Delayed") return "delayed";
+            return ""; // Delivered should not be green
+        }
+
+        // Normal flow (Created → In Transit → Delivered)
+        return StatusOrder.IndexOf(stage) <= StatusOrder.IndexOf(Status) ? "done" : "";
+    }
+}
