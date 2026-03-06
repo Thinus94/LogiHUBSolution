@@ -170,7 +170,7 @@ else
 
     private string? errorMessage;
 
-    private List<Customer> customers = new();
+    private List<CustomerResponseDto> customers = new();
 
     private CreateShipmentDto createDto = new();
     private UpdateShipmentDto editDto = new();
@@ -200,6 +200,7 @@ else
                 editDto = new UpdateShipmentDto
                 {
                     Id = shipmentResponse.Id,
+                    ShipmentNumber = shipmentResponse.ShipmentNumber,
                     Status = shipmentResponse.Status,
                     Origin = shipmentResponse.Origin,
                     Destination = shipmentResponse.Destination,

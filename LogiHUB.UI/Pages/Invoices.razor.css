@@ -1,0 +1,22 @@
+﻿.invoices-page {
+    /* Glass blur effect */
+    background: rgba(0, 0, 0, 0.35); /* semi-transparent dark overlay */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    color: white; /* text color */
+}
+
+    .invoices-page h1 {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .invoices-page p {
+        font-size: 1.5rem;
+        line-height: 1.8rem;
+        margin-bottom: 1.5rem;
+        max-width: 800px;
+    }

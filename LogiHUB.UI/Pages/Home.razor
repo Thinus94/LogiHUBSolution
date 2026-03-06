@@ -1,8 +1,23 @@
 ﻿@page "/"
 
+@inject IJSRuntime JS
+
 <PageTitle>Home</PageTitle>
 
 <div class="home-page">
     <h1>LogiHUB</h1>
     <p>Welcome to your new centralized Shipment Platform experience.</p>
+    
+    <!-- Add a tagline animation under description -->
+    <h2 id="animatedTagline" class="home-tagline"></h2>
 </div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("startTypingEffect");
+        }
+    }
+}

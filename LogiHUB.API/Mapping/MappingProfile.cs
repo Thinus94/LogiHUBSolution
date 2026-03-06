@@ -8,15 +8,26 @@ namespace LogiHUB.API.Mapping
     {
         public MappingProfile()
         {
-            // Create
+            // Create Shipment
             CreateMap<CreateShipmentDto, Shipment>();
 
-            // Update
+            // Update Shipment
             CreateMap<UpdateShipmentDto, Shipment>();
 
-            // Entity -> Response DTO
+            // Entity -> Shipment Response DTO
             CreateMap<Shipment, ShipmentResponseDto>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer!.Name));
+
+            // Create Customer
+            CreateMap<CreateCustomerDto, Customer>();
+
+            // Update Customer
+            CreateMap<UpdateCustomerDto, Customer>();
+
+            // Entity -> Customer Response DTO
+            CreateMap<Customer, CustomerResponseDto>()
+                .ForMember(dest => dest.ShipmentCount,
+                    opt => opt.MapFrom(src => src.Shipments.Count));
         }
     }
 }

@@ -29,39 +29,6 @@
     gap: 2rem;
 }
 
-/* ===== Button Style Links Override ===== */
-/*:global(.nav-btn) {
-    color: white !important;
-    text-decoration: none !important;
-    padding: 0.7rem 1.6rem;
-    border-radius: 40px;
-    background: rgba(255, 255, 255, 0.12);
-    font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: 0.6px;
-    border: 1px solid rgba(255,255,255,0.15);
-    transition: all 0.25s ease;
-}*/
-
-/* Hover effect stays the same */
-/*:global(.nav-btn:hover) {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-}*/
-
-/* Active page highlight */
-/*:global(.nav-btn.active) {
-    background: #4da3ff;
-    color: white !important;
-    box-shadow: 0 0 15px rgba(77, 163, 255, 0.6);
-}*/
-
-/* Optional: prevent visited links from turning black */
-/*.nav-links .nav-btn:visited,
-.nav-links .nav-btn:focus {
-    color: white !important;
-}*/
-
 /* Push content below nav */
 main {
     margin-top: 80px;

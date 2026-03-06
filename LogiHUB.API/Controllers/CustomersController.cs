@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LogiHUB.Shared.Models;
+using LogiHUB.Shared.DTOs;
+using AutoMapper;
 
 namespace LogiHUB.API.Controllers
 {
@@ -9,85 +11,64 @@ namespace LogiHUB.API.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ShipmentDbContext _context;
+        private readonly IMapper _mapper;
 
-        public CustomersController(ShipmentDbContext context)
+        public CustomersController(ShipmentDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/customers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CustomerResponseDto>>> GetAll()
         {
-            return await _context.Customers.ToListAsync();
+            var customers = await _context.Customers
+                .Include(c => c.Shipments)
+                .ToListAsync();
+
+            var response = _mapper.Map<List<CustomerResponseDto>>(customers);
+            return Ok(response);
         }
 
         // GET: api/customers/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Customer>> GetById(Guid id)
+        public async Task<ActionResult<CustomerResponseDto>> GetById(Guid id)
         {
-            var customer = await _context.Customers.FindAsync(id);
-            return customer == null ? NotFound() : customer;
+            var customer = await _context.Customers
+                .Include(c => c.Shipments)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (customer == null) return NotFound();
+
+            var response = _mapper.Map<CustomerResponseDto>(customer);
+            return Ok(response);
         }
 
         // POST: api/customers
         [HttpPost]
-        public async Task<ActionResult<Customer>> Create(Customer customer)
+        public async Task<ActionResult<CustomerResponseDto>> Create(CreateCustomerDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var customer = _mapper.Map<Customer>(dto);
 
-            if (customer == null)
-                return BadRequest("Customer cannot be null.");
-
-            customer.Id = Guid.NewGuid();
             _context.Customers.Add(customer);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, $"Error saving customer: {ex.Message}");
-            }
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = customer.Id },
-                customer
-            );
+            var response = _mapper.Map<CustomerResponseDto>(customer);
+
+            return CreatedAtAction(nameof(GetById), new { id = customer.Id }, response);
         }
 
         // PUT: api/customers/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, Customer customer)
+        public async Task<IActionResult> Update(Guid id, UpdateCustomerDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null) return NotFound();
 
-            if (id != customer.Id)
-                return BadRequest("Customer ID mismatch!");
-
-            var existingCustomer = await _context.Customers.FindAsync(id);
-            if (existingCustomer == null) return NotFound();
-
-            // Update properties
-            existingCustomer.Name = customer.Name;
-            existingCustomer.Email = customer.Email;
-            existingCustomer.Phone = customer.Phone;
-            existingCustomer.Address = customer.Address;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CustomerExists(id))
-                    return NotFound();
-                throw;
-            }
+            _mapper.Map(dto, customer);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -107,11 +88,6 @@ namespace LogiHUB.API.Controllers
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
             return NoContent();
-        }
-
-        private bool CustomerExists(Guid id)
-        {
-            return _context.Customers.Any(c => c.Id == id);
         }
     }
 }

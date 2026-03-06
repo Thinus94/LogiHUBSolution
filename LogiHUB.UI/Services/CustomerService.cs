@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using LogiHUB.Shared.DTOs;
+using System.Net.Http;
 using System.Net.Http.Json;
 using LogiHUB.Shared.Models;
 
@@ -13,28 +14,26 @@ namespace LogiHUB.UI.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<Customer>> GetAllAsync()
+        public async Task<List<CustomerResponseDto>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Customer>>("api/customers")
-                   ?? new List<Customer>();
+            return await _httpClient.GetFromJsonAsync<List<CustomerResponseDto>>("api/customers")
+                   ?? new List<CustomerResponseDto>();
         }
 
-        public async Task<Customer?> GetByIdAsync(Guid id)
+        public async Task<CustomerResponseDto?> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<Customer>($"api/customers/{id}");
+            return await _httpClient.GetFromJsonAsync<CustomerResponseDto>($"api/customers/{id}");
         }
 
-        public async Task<Customer> CreateAsync(Customer customer)
+        public async Task CreateAsync(CreateCustomerDto dto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/customers", customer);
+            var response = await _httpClient.PostAsJsonAsync("api/customers", dto);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Customer>()
-                   ?? throw new Exception("Failed to deserialize customer.");
         }
 
-        public async Task UpdateAsync(Customer customer)
+        public async Task UpdateAsync(UpdateCustomerDto dto)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/customers/{customer.Id}", customer);
+            var response = await _httpClient.PutAsJsonAsync($"api/customers/{dto.Id}", dto);
             response.EnsureSuccessStatusCode();
         }
 

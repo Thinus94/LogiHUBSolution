@@ -157,40 +157,6 @@ code {
             font-weight: 600;
         }
 
-/* ===== Global Navbar Buttons ===== */
-/*.nav-btn {
-    display: inline-block;
-    padding: 0.7rem 1.6rem;
-    border-radius: 40px;
-    background: rgba(255, 255, 255, 0.12);
-    color: white !important;*/ /* force white text */
-    /*text-decoration: none !important;*/ /* remove underline */
-    /*font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: 0.6px;
-    border: 1px solid rgba(255,255,255,0.15);
-    transition: all 0.25s ease;
-}*/
-
-/* Hover Effect */
-/*.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-}*/
-
-/* Active Page Highlight */
-/*.nav-btn.active {
-    background: #4da3ff;
-    color: white !important;*/ /* ensure active text is readable */
-    /*box-shadow: 0 0 15px rgba(77, 163, 255, 0.6);
-}*/
-
-/* Prevent visited/focus from changing color */
-/*.nav-btn:visited,
-.nav-btn:focus {
-    color: white !important;
-}*/
-
 /* ===== Tables on dark background ===== */
 table {
     color: white !important; /* text */
