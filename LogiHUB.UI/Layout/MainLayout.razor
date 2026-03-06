@@ -1,17 +1,40 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
 
-<div class="main-layout">
-    <header class="top-nav">
-        <nav class="nav-links">
-            <NavLink href="/" Match="NavLinkMatch.All" class="nav-btn">Home</NavLink>
-            <NavLink href="/shipments" class="nav-btn">Shipments</NavLink>
-            <NavLink href="/customers" class="nav-btn">Customers</NavLink>
-            <NavLink href="/invoices" class="nav-btn">Invoices</NavLink>
-            <NavLink href="/about" class="nav-btn">About</NavLink>
+<div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">LogiHUB</div>
+
+        <nav class="sidebar-nav">
+            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/"))">Home</button>
+            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/dashboard"))">Dashboard</button>
+            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/shipments"))">Shipments</button>
+            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/customers"))">Customers</button>
+            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/invoices"))">Invoices</button>
+            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/about"))">About</button>
         </nav>
-    </header>
+    </aside>
 
-    <main>
-        @Body
-    </main>
+    <!-- Main Area -->
+    <div class="main-area">
+
+        <header class="topbar">
+            <span>Logistics Management Platform</span>
+        </header>
+
+        <main class="content">
+            @Body
+        </main>
+
+    </div>
+
 </div>
+
+@code {
+    private void NavigateTo(string url)
+    {
+        Navigation.NavigateTo(url);
+    }
+}

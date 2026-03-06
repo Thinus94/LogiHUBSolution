@@ -1,0 +1,65 @@
+﻿@page "/dashboard"
+
+@inject HttpClient Http
+
+<div class="dashboard">
+
+    <h2>Dashboard</h2>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <h3>Shipments</h3>
+            <p>@shipmentCount</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>In Transit</h3>
+            <p>@inTransitCount</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Delivered</h3>
+            <p>@deliveredCount</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Customers</h3>
+            <p>@customerCount</p>
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    private int shipmentCount;
+    private int deliveredCount;
+    private int inTransitCount;
+    private int customerCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStats();
+    }
+
+    private async Task LoadStats()
+    {
+        try
+        {
+            var shipments = await Http.GetFromJsonAsync<List<ShipmentResponseDto>>("api/shipments");
+            var customers = await Http.GetFromJsonAsync<List<CustomerResponseDto>>("api/customers");
+
+            shipmentCount = shipments.Count;
+            deliveredCount = shipments.Count(s => s.Status == "Delivered");
+            inTransitCount = shipments.Count(s => s.Status == "In Transit");
+
+            customerCount = customers.Count;
+        }
+        catch
+        {
+            // ignore errors for now
+        }
+    }
+}

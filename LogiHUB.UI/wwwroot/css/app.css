@@ -120,43 +120,6 @@ code {
         text-shadow: 0.5px 0.5px 3px rgba(0,0,0,0.2);
     }
 
-/* ===== Navbar Links with | separators ===== */
-.nav-links {
-    display: flex;
-    align-items: center;
-    gap: 0; /* remove extra gap between links */
-}
-
-    .nav-links a.nav-btn {
-        padding: 0.6rem 0.8rem;
-        border-radius: 0; /* square corners */
-        background: transparent;
-        color: white !important;
-        text-decoration: none !important;
-        font-weight: 500;
-        font-size: 0.95rem;
-        position: relative;
-    }
-
-        /* Add | separator except last link */
-        .nav-links a.nav-btn:not(:last-child)::after {
-            content: "|";
-            color: rgba(255,255,255,0.5);
-            margin-left: 3.8rem; /* small space before separator */
-            margin-right: 0rem; /* small space after separator */
-        }
-
-        /* Hover effect */
-        .nav-links a.nav-btn:hover {
-            color: #4da3ff !important;
-        }
-
-        /* Active page */
-        .nav-links a.nav-btn.active {
-            color: #4da3ff !important;
-            font-weight: 600;
-        }
-
 /* ===== Tables on dark background ===== */
 table {
     color: white !important; /* text */
