@@ -15,5 +15,6 @@ builder.Services.AddScoped(sp => new HttpClient
 // Register services
 builder.Services.AddScoped<ShipmentService>();
 builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<InvoiceService>();
 
 await builder.Build().RunAsync();

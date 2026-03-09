@@ -28,6 +28,19 @@ namespace LogiHUB.API.Mapping
             CreateMap<Customer, CustomerResponseDto>()
                 .ForMember(dest => dest.ShipmentCount,
                     opt => opt.MapFrom(src => src.Shipments.Count));
+
+            // Create Invoice
+            CreateMap<CreateInvoiceDto, Invoice>();
+
+            // Update Invoice
+            CreateMap<UpdateInvoiceDto, Invoice>();
+
+            // Entity -> Invoice Response DTO
+            CreateMap<Invoice, InvoiceResponseDto>()
+                .ForMember(dest => dest.CustomerName,
+                    opt => opt.MapFrom(src => src.Customer!.Name))
+                .ForMember(dest => dest.ShipmentNumber,
+                    opt => opt.MapFrom(src => src.Shipment != null ? src.Shipment.ShipmentNumber : null));
         }
     }
 }

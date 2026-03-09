@@ -98,7 +98,7 @@
 }
 
 
-/* Shipments / Customers */
+/* Shipments / Customers / Financials */
 /* cyan */
 .stat-card-shipments {
     border-color: #0dcaf0;
@@ -108,3 +108,22 @@
     border-color: #6610f2;
 }
 
+/* Revenue */
+.stat-card-revenue {
+    border-color: #20c997;
+}
+
+/* Paid */
+.stat-card-paid {
+    border-color: #198754;
+}
+
+/* Outstanding */
+.stat-card-outstanding {
+    border-color: #0d6efd;
+}
+
+/* Overdue */
+.stat-card-overdue {
+    border-color: #dc3545;
+}

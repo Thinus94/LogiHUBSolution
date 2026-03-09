@@ -1,26 +1,210 @@
 ﻿@page "/invoices"
 
-<PageTitle>Invoices</PageTitle>
+@inject InvoiceService InvoiceService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 
-<div class="invoices-page page-blur-container">
-    <h1>Invoices</h1>
-    <p>Manage all invoices generated from shipments. View, create, and track invoices with ease.</p>
+<div class="page-blur-container">
 
-    <button class="btn btn-success mb-3">+ Create Invoice</button>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Invoices</h3>
 
-    <table class="table table-striped table-glass">
-        <thead>
-        <tr>
-            <th>Invoice Number</th>
-            <th>Shipment Number</th>
-            <th>Customer</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- invoice rows will go here -->
-        </tbody>
-    </table>
+        <button class="btn btn-success"
+                @onclick="CreateInvoice">
+            + Create Invoice
+        </button>
+    </div>
+
+    @if (showInvoiceModal && selectedInvoice != null)
+    {
+        <div class="modal-overlay">
+            <div class="modal-card">
+
+                <div class="modal-header">
+                    <h4>Invoice Details</h4>
+                    <button class="btn-close"
+                            @onclick="CloseInvoiceModal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <p><b>Invoice:</b> @selectedInvoice.InvoiceNumber</p>
+
+                    <p>
+                        <b>Status:</b>
+                        <span class="status-badge @GetStatusClass(selectedInvoice.Status)">
+                            @selectedInvoice.Status
+                        </span>
+                    </p>
+
+                    <p><b>Amount:</b> €@selectedInvoice.Amount</p>
+                    <p><b>Customer:</b> @selectedInvoice.CustomerName</p>
+                    <p><b>Shipment:</b> @selectedInvoice.ShipmentNumber</p>
+
+                    <p><b>Issued:</b> @selectedInvoice.IssueDate.ToShortDateString()</p>
+                    <p><b>Due:</b> @selectedInvoice.DueDate?.ToShortDateString()</p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-primary"
+                            @onclick="@(() => EditInvoice(selectedInvoice.Id))">
+                        Edit
+                    </button>
+
+                    <button class="btn btn-secondary"
+                            @onclick="CloseInvoiceModal">
+                        Close
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <p><em>Loading invoices...</em></p>
+    }
+    else if (invoices.Count == 0)
+    {
+        <p>No invoices found.</p>
+    }
+    else
+    {
+        <div class="table-responsive table-container">
+
+            <table class="table table-glass table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                        <th>Customer</th>
+                        <th>Shipment</th>
+                        <th>Issued</th>
+                        <th>Due</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var invoice in invoices)
+                    {
+                        <tr @onclick="() => OpenInvoice(invoice)">
+
+                            <td>@invoice.InvoiceNumber</td>
+
+                            <td>
+                                <span class="status-badge @GetStatusClass(invoice.Status)">
+                                    @invoice.Status
+                                </span>
+                            </td>
+
+                            <td>€@invoice.Amount</td>
+
+                            <td>@invoice.CustomerName</td>
+
+                            <td>@invoice.ShipmentNumber</td>
+
+                            <td>@invoice.IssueDate.ToShortDateString()</td>
+
+                            <td>@invoice.DueDate?.ToShortDateString()</td>
+
+                            <td>
+
+                                <button class="btn btn-sm btn-primary"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="@(() => EditInvoice(invoice.Id))">
+                                    Edit
+                                </button>
+
+                                <button class="btn btn-sm btn-danger"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="@(() => DeleteInvoice(invoice.Id))">
+                                    Delete
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+    }
+
 </div>
+
+@code {
+
+    private List<InvoiceResponseDto> invoices = new();
+
+    private InvoiceResponseDto? selectedInvoice;
+
+    private bool showInvoiceModal;
+
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInvoices();
+    }
+
+    private async Task LoadInvoices()
+    {
+        isLoading = true;
+
+        invoices = await InvoiceService.GetAllAsync();
+
+        isLoading = false;
+    }
+
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Paid" => "status-delivered",
+            "Pending" => "status-created",
+            "Overdue" => "status-delayed",
+            _ => ""
+        };
+    }
+
+    private void OpenInvoice(InvoiceResponseDto invoice)
+    {
+        selectedInvoice = invoice;
+        showInvoiceModal = true;
+    }
+
+    private void CloseInvoiceModal()
+    {
+        showInvoiceModal = false;
+    }
+
+    private void CreateInvoice()
+    {
+        NavigationManager.NavigateTo("/edit-invoice");
+    }
+
+    private void EditInvoice(Guid id)
+    {
+        NavigationManager.NavigateTo($"/edit-invoice/{id}");
+    }
+
+    private async Task DeleteInvoice(Guid id)
+    {
+        if (await JsRuntime.InvokeAsync<bool>("confirm", "Delete invoice?"))
+        {
+            await InvoiceService.DeleteAsync(id);
+            await LoadInvoices();
+        }
+    }
+
+}

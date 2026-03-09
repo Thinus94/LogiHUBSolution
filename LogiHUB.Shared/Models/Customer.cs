@@ -23,6 +23,9 @@ namespace LogiHUB.Shared.Models
         [JsonIgnore] // Prevent circular reference
         public List<Shipment> Shipments { get; set; } = new();
 
+        [JsonIgnore]
+        public List<Invoice> Invoices { get; set; } = new();
+
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
 }

@@ -53,6 +53,37 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Financial Group -->
+        <div class="dashboard-card">
+
+            <h3 class="card-title">Financials</h3>
+
+            <div class="dashboard-group">
+
+                <div class="stat-card stat-card-revenue">
+                    <h4>Total Revenue</h4>
+                    <p>€@totalRevenue</p>
+                </div>
+
+                <div class="stat-card stat-card-paid">
+                    <h4>Paid</h4>
+                    <p>€@paid</p>
+                </div>
+
+                <div class="stat-card stat-card-outstanding">
+                    <h4>Outstanding</h4>
+                    <p>€@outstanding</p>
+                </div>
+
+                <div class="stat-card stat-card-overdue">
+                    <h4>Overdue</h4>
+                    <p>€@overdue</p>
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 </div>
@@ -65,6 +96,10 @@
     private int deliveredCount;
     private int delayedCount;
     private int cancelledCount;
+    private decimal totalRevenue;
+    private decimal outstanding;
+    private decimal overdue;
+    private decimal paid;
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,6 +125,23 @@
             deliveredCount = shipments.Count(s => s.Status == "Delivered");
             delayedCount = shipments.Count(s => s.Status == "Delayed");
             cancelledCount = shipments.Count(s => s.Status == "Cancelled");
+
+            var invoices = await Http.GetFromJsonAsync<List<InvoiceResponseDto>>("api/invoices")
+                           ?? new List<InvoiceResponseDto>();
+
+            totalRevenue = invoices.Sum(i => i.Amount);
+
+            paid = invoices
+                .Where(i => i.Status == "Paid")
+                .Sum(i => i.Amount);
+
+            outstanding = invoices
+                .Where(i => i.Status == "Pending")
+                .Sum(i => i.Amount);
+
+            overdue = invoices
+                .Where(i => i.Status == "Overdue")
+                .Sum(i => i.Amount);
         }
         catch
         {

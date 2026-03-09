@@ -11,6 +11,8 @@ public class ShipmentDbContext : DbContext
 
     public DbSet<Customer> Customers => Set<Customer>();
 
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Shipment>()
@@ -18,5 +20,17 @@ public class ShipmentDbContext : DbContext
             .WithMany(c => c.Shipments)
             .HasForeignKey(s => s.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Invoice>()
+            .HasOne(i => i.Customer)
+            .WithMany(c => c.Invoices)
+            .HasForeignKey(i => i.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Invoice>()
+            .HasOne(i => i.Shipment)
+            .WithOne(s => s.Invoice)
+            .HasForeignKey<Invoice>(i => i.ShipmentId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

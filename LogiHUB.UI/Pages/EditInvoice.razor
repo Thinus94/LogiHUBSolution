@@ -1,0 +1,162 @@
+﻿@page "/edit-invoice"
+@page "/edit-invoice/{Id:guid}"
+
+@inject InvoiceService InvoiceService
+@inject CustomerService CustomerService
+@inject ShipmentService ShipmentService
+@inject NavigationManager NavigationManager
+
+<div class="page-blur-container">
+
+    <h3>@(IsEditMode ? "Edit Invoice" : "Create Invoice")</h3>
+
+    <EditForm Model="FormModel" OnValidSubmit="HandleValidSubmit">
+
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Amount</label>
+
+            @if (IsEditMode)
+            {
+                <InputNumber class="form-control" @bind-Value="editDto.Amount" />
+            }
+            else
+            {
+                <InputNumber class="form-control" @bind-Value="createDto.Amount" />
+            }
+
+        </div>
+
+        <div class="mb-3">
+            <label>Status</label>
+
+            <InputSelect class="form-control"
+                         @bind-Value="editDto.Status">
+
+                <option>Pending</option>
+                <option>Paid</option>
+                <option>Overdue</option>
+
+            </InputSelect>
+
+        </div>
+
+        <div class="mb-3">
+            <label>Customer</label>
+
+            <InputSelect class="form-control"
+                         @bind-Value="createDto.CustomerId">
+
+                @foreach (var c in customers)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+
+            </InputSelect>
+
+        </div>
+
+        <div class="mb-3">
+            <label>Shipment</label>
+
+            <InputSelect class="form-control"
+                         @bind-Value="createDto.ShipmentId">
+
+                <option value="">None</option>
+
+                @foreach (var s in shipments)
+                {
+                    <option value="@s.Id">@s.ShipmentNumber</option>
+                }
+
+            </InputSelect>
+
+        </div>
+
+        <button class="btn btn-success">
+            @(IsEditMode ? "Update" : "Create")
+        </button>
+
+        <button type="button"
+                class="btn btn-secondary"
+                @onclick="Cancel">
+            Cancel
+        </button>
+
+    </EditForm>
+
+</div>
+
+@code {
+
+    [Parameter] public Guid? Id { get; set; }
+
+    [SupplyParameterFromQuery]
+    public Guid? ShipmentId { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid CustomerId { get; set; }
+
+    bool IsEditMode => Id.HasValue;
+
+    CreateInvoiceDto createDto = new();
+
+    UpdateInvoiceDto editDto = new();
+
+    List<CustomerResponseDto> customers = new();
+
+    List<ShipmentResponseDto> shipments = new();
+
+    object FormModel => IsEditMode ? editDto : createDto;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomerService.GetAllAsync();
+
+        var shipmentResult = await ShipmentService.GetAllAsync("", "", null, 1, 100);
+
+        shipments = shipmentResult.Items;
+
+        if (IsEditMode)
+        {
+            var existing = await InvoiceService.GetByIdAsync(Id!.Value);
+
+            editDto = new UpdateInvoiceDto
+            {
+                Id = existing.Id,
+                InvoiceNumber = existing.InvoiceNumber,
+                Amount = existing.Amount,
+                Status = existing.Status,
+                CustomerId = existing.CustomerId,
+                ShipmentId = existing.ShipmentId
+            };
+        }
+        else if (!IsEditMode && ShipmentId.HasValue && CustomerId != Guid.Empty)
+        {
+            createDto.ShipmentId = ShipmentId;
+            createDto.CustomerId = CustomerId;
+            createDto.IssueDate = DateTime.UtcNow;
+        }
+    }
+
+    async Task HandleValidSubmit()
+    {
+
+        if (IsEditMode)
+            await InvoiceService.UpdateAsync(editDto);
+        else
+            await InvoiceService.CreateAsync(createDto);
+
+        NavigationManager.NavigateTo("/invoices");
+
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/invoices");
+    }
+
+}

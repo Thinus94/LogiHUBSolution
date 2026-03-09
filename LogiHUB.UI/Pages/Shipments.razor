@@ -157,7 +157,10 @@
                                 @onclick="@(() => EditShipment(selectedShipment.Id))">
                             Edit
                         </button>
-
+                        <button class="btn btn-warning"
+                                @onclick="@(() => CreateInvoice(selectedShipment.Id, selectedShipment.CustomerId))">
+                            Create Invoice
+                        </button>
                         <button class="btn btn-secondary"
                                 @onclick="CloseShipmentModal">
                             Close
@@ -249,6 +252,11 @@
     {
         selectedShipment = shipment;
         showShipmentModal = true;
+    }
+
+    void CreateInvoice(Guid id, Guid customerId)
+    {
+        NavigationManager.NavigateTo($"/edit-invoice?shipmentId={id}&customerId={customerId}");
     }
 
     private void CloseShipmentModal()

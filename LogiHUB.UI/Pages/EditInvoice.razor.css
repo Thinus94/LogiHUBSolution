@@ -1,0 +1,49 @@
+﻿/* Container */
+.page-blur-container {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10, 15, 25, 0.5);
+    padding: 2rem;
+    border-radius: 12px;
+    margin: 2rem auto;
+    max-width: 800px;
+    color: white;
+}
+
+/* Title */
+h3 {
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+/* Labels */
+label {
+    font-weight: 500;
+}
+
+/* Inputs */
+.form-control {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+}
+
+    .form-control:focus {
+        background: rgba(255,255,255,0.1);
+        border-color: #4da3ff;
+    }
+
+/* Buttons */
+
+.btn-success {
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+    .btn-success:hover {
+        background-color: #4da3ff;
+    }
+
+.btn-secondary {
+    background: rgba(255,255,255,0.15);
+}
