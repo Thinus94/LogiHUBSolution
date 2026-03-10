@@ -52,12 +52,22 @@
                             @onclick="@(() => EditInvoice(selectedInvoice.Id))">
                         Edit
                     </button>
-
                     <button class="btn btn-secondary"
                             @onclick="CloseInvoiceModal">
                         Close
                     </button>
+                    <button class="btn btn-sm btn-outline-primary"
+                            @onclick="() => OpenCustomer(selectedInvoice.CustomerId)">
+                        Open Customer: @selectedInvoice.CustomerName
+                    </button>
 
+                    @if (selectedInvoice.ShipmentId.HasValue)
+                    {
+                        <button class="btn btn-sm btn-outline-info"
+                                @onclick="() => OpenShipment(selectedInvoice.ShipmentId)">
+                            Open Shipment: @selectedInvoice.ShipmentNumber
+                        </button>
+                    }
                 </div>
 
             </div>
@@ -148,6 +158,10 @@
 
     private InvoiceResponseDto? selectedInvoice;
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? CustomerId { get; set; }
+
     private bool showInvoiceModal;
 
     private bool isLoading = true;
@@ -161,7 +175,7 @@
     {
         isLoading = true;
 
-        invoices = await InvoiceService.GetAllAsync();
+        invoices = await InvoiceService.GetAllAsync(CustomerId);
 
         isLoading = false;
     }
@@ -170,9 +184,9 @@
     {
         return status switch
         {
-            "Paid" => "status-delivered",
-            "Pending" => "status-created",
-            "Overdue" => "status-delayed",
+            "Paid" => "status-paid",
+            "Pending" => "status-pending",
+            "Overdue" => "status-overdue",
             _ => ""
         };
     }
@@ -186,6 +200,19 @@
     private void CloseInvoiceModal()
     {
         showInvoiceModal = false;
+    }
+
+    void OpenShipment(Guid? shipmentId)
+    {
+        if (shipmentId.HasValue)
+        {
+            NavigationManager.NavigateTo($"/edit-shipment/{shipmentId.Value}");
+        }
+    }
+
+    void OpenCustomer(Guid customerId)
+    {
+        NavigationManager.NavigateTo($"/edit-customer/{customerId}");
     }
 
     private void CreateInvoice()

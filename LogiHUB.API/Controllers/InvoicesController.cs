@@ -3,6 +3,7 @@ using LogiHUB.Shared.DTOs;
 using LogiHUB.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 [ApiController]
 [Route("api/invoices")]
@@ -18,12 +19,19 @@ public class InvoicesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll(Guid? customerId)
     {
-        var invoices = await _context.Invoices
+        var query = _context.Invoices
             .Include(i => i.Customer)
             .Include(i => i.Shipment)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (customerId.HasValue)
+        {
+            query = query.Where(i => i.CustomerId == customerId.Value);
+        }
+
+        var invoices = await query.ToListAsync();
 
         return Ok(_mapper.Map<List<InvoiceResponseDto>>(invoices));
     }
@@ -48,6 +56,7 @@ public class InvoicesController : ControllerBase
 
         invoice.Id = Guid.NewGuid();
         invoice.InvoiceNumber = $"INV-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+        invoice.Status = string.IsNullOrEmpty(dto.Status) ? "Pending" : dto.Status;
 
         _context.Invoices.Add(invoice);
         await _context.SaveChangesAsync();

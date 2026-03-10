@@ -12,10 +12,27 @@ namespace LogiHUB.UI.Services
             _http = http;
         }
 
-        public async Task<List<InvoiceResponseDto>> GetAllAsync()
+        public async Task<List<InvoiceResponseDto>> GetAllAsync(Guid? customerId)
         {
-            return await _http.GetFromJsonAsync<List<InvoiceResponseDto>>("api/invoices")
-                   ?? new();
+            var url = "api/invoices";
+
+            if (customerId.HasValue)
+            {
+                url += $"?customerId={customerId}";
+            }
+
+            var invoices = await _http.GetFromJsonAsync<List<InvoiceResponseDto>>(url)
+                           ?? new();
+
+            foreach (var invoice in invoices)
+            {
+                if (invoice.DueDate < DateTime.Today && invoice.Status != "Paid")
+                {
+                    invoice.Status = "Overdue";
+                }
+            }
+
+            return invoices;
         }
 
         public async Task<InvoiceResponseDto?> GetByIdAsync(Guid id)

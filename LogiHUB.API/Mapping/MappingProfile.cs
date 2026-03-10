@@ -16,7 +16,12 @@ namespace LogiHUB.API.Mapping
 
             // Entity -> Shipment Response DTO
             CreateMap<Shipment, ShipmentResponseDto>()
-                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer!.Name));
+                .ForMember(dest => dest.CustomerName,
+                    opt => opt.MapFrom(src => src.Customer!.Name))
+                .ForMember(dest => dest.InvoiceId,
+                    opt => opt.MapFrom(src => src.Invoice != null ? src.Invoice.Id : (Guid?)null))
+                .ForMember(dest => dest.InvoiceNumber,
+                    opt => opt.MapFrom(src => src.Invoice != null ? src.Invoice.InvoiceNumber : null));
 
             // Create Customer
             CreateMap<CreateCustomerDto, Customer>();
@@ -27,7 +32,9 @@ namespace LogiHUB.API.Mapping
             // Entity -> Customer Response DTO
             CreateMap<Customer, CustomerResponseDto>()
                 .ForMember(dest => dest.ShipmentCount,
-                    opt => opt.MapFrom(src => src.Shipments.Count));
+                    opt => opt.MapFrom(src => src.Shipments.Count))
+                .ForMember(dest => dest.InvoiceCount,
+                    opt => opt.MapFrom(src => src.Shipments.Count(s => s.Invoice != null)));
 
             // Create Invoice
             CreateMap<CreateInvoiceDto, Invoice>();

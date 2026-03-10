@@ -13,6 +13,8 @@ namespace LogiHUB.Shared.DTOs
         public DateTime? DeliveryDate { get; set; }
         public decimal WeightKg { get; set; }
         public Guid CustomerId { get; set; }
-        public string CustomerName { get; set; } = string.Empty; // mapped from Customer.Name
+        public string CustomerName { get; set; } = string.Empty;
+        public Guid? InvoiceId { get; set; }
+        public string? InvoiceNumber { get; set; }
     }
 }

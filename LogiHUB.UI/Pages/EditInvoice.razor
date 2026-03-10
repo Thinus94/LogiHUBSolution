@@ -26,53 +26,96 @@
             {
                 <InputNumber class="form-control" @bind-Value="createDto.Amount" />
             }
-
         </div>
 
         <div class="mb-3">
             <label>Status</label>
+            @if (IsEditMode)
+            {
+                <InputSelect class="form-control"
+                             @bind-Value="editDto.Status">
 
-            <InputSelect class="form-control"
-                         @bind-Value="editDto.Status">
+                    <option>Pending</option>
+                    <option>Paid</option>
+                    <option>Overdue</option>
 
-                <option>Pending</option>
-                <option>Paid</option>
-                <option>Overdue</option>
+                </InputSelect>
+            }
+            else
+            {
+                <InputSelect class="form-control"
+                             @bind-Value="createDto.Status">
 
-            </InputSelect>
+                    <option>Pending</option>
+                    <option>Paid</option>
+                    <option>Overdue</option>
 
+                </InputSelect>
+            }
+        </div>
+        
+        <div class="mb-3">
+            <label>Due Date</label>
+            @if (IsEditMode)
+            {
+                <InputDate class="form-control" @bind-Value="editDto.DueDate" />
+            }
+            else 
+            {
+                <InputDate class="form-control" @bind-Value="createDto.DueDate" />
+            }
         </div>
 
         <div class="mb-3">
             <label>Customer</label>
+            @if (IsEditMode)
+            {
+                <InputSelect class="form-control"
+                             @bind-Value="editDto.CustomerId">
+                    @foreach (var c in customers)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </InputSelect>
+            }
+            else
+            {
+                <InputSelect class="form-control"
+                             @bind-Value="createDto.CustomerId">
 
-            <InputSelect class="form-control"
-                         @bind-Value="createDto.CustomerId">
+                    @foreach (var c in customers)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
 
-                @foreach (var c in customers)
-                {
-                    <option value="@c.Id">@c.Name</option>
-                }
-
-            </InputSelect>
-
+                </InputSelect>
+            }
         </div>
 
         <div class="mb-3">
             <label>Shipment</label>
-
-            <InputSelect class="form-control"
-                         @bind-Value="createDto.ShipmentId">
-
-                <option value="">None</option>
-
-                @foreach (var s in shipments)
-                {
-                    <option value="@s.Id">@s.ShipmentNumber</option>
-                }
-
-            </InputSelect>
-
+            @if (IsEditMode)
+            {
+                <InputSelect class="form-control"
+                             @bind-Value="editDto.ShipmentId">
+                    <option value="">None</option>
+                    @foreach (var s in shipments)
+                    {
+                        <option value="@s.Id">@s.ShipmentNumber</option>
+                    }
+                </InputSelect>
+            }
+            else
+            {
+                <InputSelect class="form-control"
+                             @bind-Value="createDto.ShipmentId">
+                    <option value="">None</option>
+                    @foreach (var s in shipments)
+                    {
+                        <option value="@s.Id">@s.ShipmentNumber</option>
+                    }
+                </InputSelect>
+            }
         </div>
 
         <button class="btn btn-success">
@@ -131,10 +174,11 @@
                 Amount = existing.Amount,
                 Status = existing.Status,
                 CustomerId = existing.CustomerId,
-                ShipmentId = existing.ShipmentId
+                ShipmentId = existing.ShipmentId,
+                IssueDate = existing.IssueDate
             };
         }
-        else if (!IsEditMode && ShipmentId.HasValue && CustomerId != Guid.Empty)
+        else if (ShipmentId.HasValue && CustomerId != Guid.Empty)
         {
             createDto.ShipmentId = ShipmentId;
             createDto.CustomerId = CustomerId;

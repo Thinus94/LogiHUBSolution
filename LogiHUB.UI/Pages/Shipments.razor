@@ -157,10 +157,20 @@
                                 @onclick="@(() => EditShipment(selectedShipment.Id))">
                             Edit
                         </button>
-                        <button class="btn btn-warning"
-                                @onclick="@(() => CreateInvoice(selectedShipment.Id, selectedShipment.CustomerId))">
-                            Create Invoice
-                        </button>
+                        @if (selectedShipment.InvoiceId.HasValue)
+                        {
+                            <button class="btn btn-info"
+                                    @onclick="@(() => OpenInvoice(selectedShipment.InvoiceId.Value))">
+                                Open Invoice: @selectedShipment.InvoiceNumber
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-warning"
+                                    @onclick="@(() => CreateInvoice(selectedShipment.Id, selectedShipment.CustomerId))">
+                                Create Invoice
+                            </button>
+                        }
                         <button class="btn btn-secondary"
                                 @onclick="CloseShipmentModal">
                             Close
@@ -176,6 +186,9 @@
 @code {
     private List<ShipmentResponseDto> shipments = new();
     private ShipmentResponseDto? selectedShipment;
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? CustomerId { get; set; }
     private bool showShipmentModal = false;
     private bool isLoading = true;
     private string? errorMessage;
@@ -200,7 +213,7 @@
             var result = await ShipmentService.GetAllAsync(
                 searchTerm,
                 statusFilter,
-                null,
+                CustomerId,
                 pageNumber,
                 pageSize);
 
@@ -254,9 +267,23 @@
         showShipmentModal = true;
     }
 
-    void CreateInvoice(Guid id, Guid customerId)
+    private void CreateInvoice(Guid shipmentId, Guid customerId)
     {
-        NavigationManager.NavigateTo($"/edit-invoice?shipmentId={id}&customerId={customerId}");
+        var shipment = shipments.FirstOrDefault(s => s.Id == shipmentId);
+
+        if (shipment?.InvoiceId != null)
+        {
+            // If invoice already exists, open it
+            OpenInvoice(shipment.InvoiceId.Value);
+            return;
+        }
+
+        NavigationManager.NavigateTo($"/edit-invoice?shipmentId={shipmentId}&customerId={customerId}");
+    }
+
+    private void OpenInvoice(Guid invoiceId)
+    {
+        NavigationManager.NavigateTo($"/edit-invoice/{invoiceId}");
     }
 
     private void CloseShipmentModal()

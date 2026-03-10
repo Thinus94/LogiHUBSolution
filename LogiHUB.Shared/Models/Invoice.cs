@@ -16,7 +16,7 @@ namespace LogiHUB.Shared.Models
 
         [Required]
         [MaxLength(50)]
-        public string Status { get; set; } = "Pending";
+        public string Status { get; set; } = string.Empty;
 
         [Required]
         public DateTime IssueDate { get; set; }

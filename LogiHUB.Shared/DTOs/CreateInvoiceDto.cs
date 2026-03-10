@@ -7,6 +7,8 @@ namespace LogiHUB.Shared.DTOs
         [Required]
         public decimal Amount { get; set; }
 
+        public string Status { get; set; } = string.Empty;
+
         [Required]
         public DateTime IssueDate { get; set; }
 

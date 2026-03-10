@@ -26,6 +26,7 @@ namespace LogiHUB.API.Controllers
         {
             var shipmentsQuery = _context.Shipments
                 .Include(s => s.Customer)
+                .Include(s => s.Invoice)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.Search))
@@ -71,6 +72,7 @@ namespace LogiHUB.API.Controllers
         {
             var shipment = await _context.Shipments
                 .Include(s => s.Customer)
+                .Include(s => s.Invoice)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (shipment == null) return NotFound();

@@ -25,6 +25,7 @@ namespace LogiHUB.API.Controllers
         {
             var customers = await _context.Customers
                 .Include(c => c.Shipments)
+                .Include(c => c.Invoices)
                 .ToListAsync();
 
             var response = _mapper.Map<List<CustomerResponseDto>>(customers);
@@ -37,6 +38,7 @@ namespace LogiHUB.API.Controllers
         {
             var customer = await _context.Customers
                 .Include(c => c.Shipments)
+                .Include(c => c.Invoices)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (customer == null) return NotFound();

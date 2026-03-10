@@ -28,7 +28,21 @@
                     <p><b>Shipments:</b> @selectedCustomer.ShipmentCount</p>
 
                 </div>
+                @if (selectedCustomer.ShipmentCount > 0)
+                {
+                    <button class="btn btn-primary"
+                            @onclick="() => OpenCustomerShipments(selectedCustomer.Id)">
+                        View Shipments (@selectedCustomer.ShipmentCount)
+                    </button>
+                }
 
+                @if (selectedCustomer.InvoiceCount > 0)
+                {
+                    <button class="btn btn-success"
+                            @onclick="() => OpenCustomerInvoices(selectedCustomer.Id)">
+                        View Invoices (@selectedCustomer.InvoiceCount)
+                    </button>
+                }
                 <div class="modal-footer">
                     <button class="btn btn-primary"
                             @onclick="@(() => EditCustomer(selectedCustomer.Id))">
@@ -132,6 +146,16 @@
     {
         selectedCustomer = customer;
         showCustomerModal = true;
+    }
+
+    void OpenCustomerShipments(Guid customerId)
+    {
+        NavigationManager.NavigateTo($"/shipments?customerId={customerId}");
+    }
+
+    void OpenCustomerInvoices(Guid customerId)
+    {
+        NavigationManager.NavigateTo($"/invoices?customerId={customerId}");
     }
 
     private void CloseCustomerModal()

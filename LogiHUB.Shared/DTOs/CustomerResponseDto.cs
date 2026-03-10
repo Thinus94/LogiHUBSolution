@@ -15,5 +15,7 @@ namespace LogiHUB.Shared.DTOs
         public string Address { get; set; } = string.Empty;
 
         public int ShipmentCount { get; set; }
+
+        public int InvoiceCount { get; set; }
     }
 }

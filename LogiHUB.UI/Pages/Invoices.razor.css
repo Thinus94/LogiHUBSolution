@@ -51,11 +51,13 @@
 /* Status badges */
 
 .status-badge {
-    padding: 0.3rem 0.7rem;
-    border-radius: 6px;
-    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
     font-size: 0.85rem;
+    font-weight: 600;
 }
+
+/* Invoice status colors */
 
 .status-paid {
     background: #198754;
