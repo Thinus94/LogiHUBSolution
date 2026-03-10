@@ -8,12 +8,35 @@
         <div class="logo">LogiHUB</div>
 
         <nav class="sidebar-nav">
-            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/"))">Home</button>
-            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/dashboard"))">Dashboard</button>
-            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/shipments"))">Shipments</button>
-            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/customers"))">Customers</button>
-            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/invoices"))">Invoices</button>
-            <button class="sidebar-btn" @onclick="@(() => NavigateTo("/about"))">About</button>
+            <button class="sidebar-btn @(IsActive("/"))" @onclick="@(() => NavigateTo("/"))">
+                <i class="bi bi-house"></i>
+                Home
+            </button>
+
+            <button class="sidebar-btn @(IsActive("/dashboard"))" @onclick="@(() => NavigateTo("/dashboard"))">
+                <i class="bi bi-speedometer2"></i>
+                Dashboard
+            </button>
+
+            <button class="sidebar-btn @(IsActive("/shipments"))" @onclick="@(() => NavigateTo("/shipments"))">
+                <i class="bi bi-truck"></i>
+                Shipments
+            </button>
+
+            <button class="sidebar-btn @(IsActive("/customers"))" @onclick="@(() => NavigateTo("/customers"))">
+                <i class="bi bi-people"></i>
+                Customers
+            </button>
+
+            <button class="sidebar-btn @(IsActive("/invoices"))" @onclick="@(() => NavigateTo("/invoices"))">
+                <i class="bi bi-receipt"></i>
+                Invoices
+            </button>
+
+            <button class="sidebar-btn @(IsActive("/about"))" @onclick="@(() => NavigateTo("/about"))">
+                <i class="bi bi-info-circle"></i>
+                About
+            </button>
         </nav>
     </aside>
 
@@ -36,5 +59,10 @@
     private void NavigateTo(string url)
     {
         Navigation.NavigateTo(url);
+    }
+
+    private string IsActive(string href)
+    {
+        return Navigation.Uri.EndsWith(href, StringComparison.OrdinalIgnoreCase) ? "active" : "";
     }
 }

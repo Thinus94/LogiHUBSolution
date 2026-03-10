@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LogiHUB.Shared.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LogiHUB.Shared.Models
@@ -20,8 +21,7 @@ namespace LogiHUB.Shared.Models
         public string Destination { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(50)]
-        public string Status { get; set; } = string.Empty;
+        public ShipmentStatus Status { get; set; }
 
         [Required]
         public DateTime PickupDate { get; set; }

@@ -1,5 +1,6 @@
 ﻿using LogiHUB.Shared.DTOs;
 using System.Net.Http.Json;
+using LogiHUB.Shared.Enums;
 
 namespace LogiHUB.UI.Services
 {
@@ -26,9 +27,9 @@ namespace LogiHUB.UI.Services
 
             foreach (var invoice in invoices)
             {
-                if (invoice.DueDate < DateTime.Today && invoice.Status != "Paid")
+                if (invoice.DueDate < DateTime.Today && invoice.Status != InvoiceStatus.Paid)
                 {
-                    invoice.Status = "Overdue";
+                    invoice.Status = InvoiceStatus.Overdue;
                 }
             }
 

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LogiHUB.Shared.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LogiHUB.Shared.Models
@@ -15,8 +16,7 @@ namespace LogiHUB.Shared.Models
         public decimal Amount { get; set; }
 
         [Required]
-        [MaxLength(50)]
-        public string Status { get; set; } = string.Empty;
+        public InvoiceStatus Status { get; set; }
 
         [Required]
         public DateTime IssueDate { get; set; }

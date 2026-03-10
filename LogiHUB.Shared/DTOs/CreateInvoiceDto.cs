@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LogiHUB.Shared.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace LogiHUB.Shared.DTOs
 {
@@ -7,7 +8,7 @@ namespace LogiHUB.Shared.DTOs
         [Required]
         public decimal Amount { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
 
         [Required]
         public DateTime IssueDate { get; set; }

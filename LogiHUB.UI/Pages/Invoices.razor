@@ -52,7 +52,7 @@
 
                             <td>
                                 <span class="status-badge @GetStatusClass(invoice.Status)">
-                                    @invoice.Status
+                                    @invoice.Status.GetDisplayName()
                                 </span>
                             </td>
 
@@ -117,13 +117,14 @@
         isLoading = false;
     }
 
-    private string GetStatusClass(string status)
+    private string GetStatusClass(InvoiceStatus status)
     {
         return status switch
         {
-            "Paid" => "status-paid",
-            "Pending" => "status-pending",
-            "Overdue" => "status-overdue",
+            InvoiceStatus.Paid => "status-paid",
+            InvoiceStatus.Pending => "status-pending",
+            InvoiceStatus.Overdue => "status-overdue",
+            InvoiceStatus.Cancelled => "status-cancelled",
             _ => ""
         };
     }

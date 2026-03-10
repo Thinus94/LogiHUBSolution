@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LogiHUB.Shared.DTOs;
+using LogiHUB.Shared.Enums;
 using LogiHUB.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +57,7 @@ public class InvoicesController : ControllerBase
 
         invoice.Id = Guid.NewGuid();
         invoice.InvoiceNumber = $"INV-{Guid.NewGuid().ToString()[..8].ToUpper()}";
-        invoice.Status = string.IsNullOrEmpty(dto.Status) ? "Pending" : dto.Status;
+        invoice.Status =  dto.Status;
 
         _context.Invoices.Add(invoice);
         await _context.SaveChangesAsync();

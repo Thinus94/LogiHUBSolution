@@ -1,4 +1,5 @@
 ﻿// LogiHUB.Shared/DTOs/UpdateShipmentDto.cs
+using LogiHUB.Shared.Enums;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -30,6 +31,6 @@ namespace LogiHUB.Shared.DTOs
         public Guid CustomerId { get; set; }
 
         [Required]
-        public string Status { get; set; } = string.Empty; // editable in edit
+        public ShipmentStatus Status { get; set; } 
     }
 }

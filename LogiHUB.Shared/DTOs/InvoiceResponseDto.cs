@@ -1,4 +1,6 @@
-﻿namespace LogiHUB.Shared.DTOs
+﻿using LogiHUB.Shared.Enums;
+
+namespace LogiHUB.Shared.DTOs
 {
     public class InvoiceResponseDto
     {
@@ -8,7 +10,7 @@
 
         public decimal Amount { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public InvoiceStatus Status { get; set; }
 
         public DateTime IssueDate { get; set; }
 

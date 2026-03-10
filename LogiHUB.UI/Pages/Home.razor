@@ -5,14 +5,93 @@
 <PageTitle>Home</PageTitle>
 
 <div class="home-page">
+
     <h1>LogiHUB</h1>
+
     <p>Welcome to your new centralized Shipment Platform experience.</p>
-    
-    <!-- Add a tagline animation under description -->
+
     <h2 id="animatedTagline" class="home-tagline"></h2>
+
+    <div class="home-actions">
+
+        <button class="primary-btn" @onclick="ShowLogin">
+            Login
+        </button>
+
+        <button class="secondary-btn" @onclick="ShowRegister">
+            Become a Client
+        </button>
+
+    </div>
+
 </div>
 
+@if (showLogin)
+{
+    <div class="modal-overlay">
+
+        <div class="modal-card">
+
+            <h3>Client Login</h3>
+
+            <input placeholder="Email" @bind="loginEmail" />
+            <input placeholder="Password" type="password" @bind="loginPassword" />
+
+            <div class="modal-actions">
+                <button class="primary-btn">Login</button>
+                <button class="secondary-btn" @onclick="CloseModal">Cancel</button>
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@if (showRegister)
+{
+    <div class="modal-overlay">
+
+        <div class="modal-card">
+
+            <h3>Become a Client</h3>
+
+            <input placeholder="Company Name" />
+            <input placeholder="Contact Email" />
+            <input placeholder="Phone" />
+
+            <div class="modal-actions">
+                <button class="primary-btn">Submit</button>
+                <button class="secondary-btn" @onclick="CloseModal">Cancel</button>
+            </div>
+
+        </div>
+
+    </div>
+}
+
 @code {
+    bool showLogin = false;
+    bool showRegister = false;
+
+    string? loginEmail;
+    string? loginPassword;
+
+    void ShowLogin()
+    {
+        showLogin = true;
+    }
+
+    void ShowRegister()
+    {
+        showRegister = true;
+    }
+
+    void CloseModal()
+    {
+        showLogin = false;
+        showRegister = false;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

@@ -1,4 +1,7 @@
-﻿@using System.ComponentModel.DataAnnotations
+﻿@using LogiHUB.Shared.Enums
+@using LogiHUB.Shared.Extensions
+@using System.ComponentModel.DataAnnotations
+
 <div class="timeline">
 
     @foreach (var stage in StatusOrder)
@@ -8,7 +11,7 @@
             <div class="timeline-circle @(GetStatusClass(stage))"></div>
 
             <div class="timeline-label">
-                @stage
+                @stage.GetDisplayName()
             </div>
 
         </div>
@@ -17,37 +20,40 @@
 </div>
 
 @code {
-    [Parameter, Required]
-    public string Status { get; set; } = string.Empty;
 
-    private List<string> StatusOrder = new()
+    [Parameter, Required]
+    public ShipmentStatus Status { get; set; }
+
+    private List<ShipmentStatus> StatusOrder = new()
     {
-        "Created",
-        "In Transit",
-        "Delivered",
-        "Delayed",
-        "Cancelled"
+        ShipmentStatus.Created,
+        ShipmentStatus.InTransit,
+        ShipmentStatus.Delivered,
+        ShipmentStatus.Delayed,
+        ShipmentStatus.Cancelled
     };
 
-    string GetStatusClass(string stage)
+    string GetStatusClass(ShipmentStatus stage)
     {
         // Cancelled shipment
-        if (Status == "Cancelled")
+        if (Status == ShipmentStatus.Cancelled)
         {
-            if (stage == "Created") return "done";
-            if (stage == "Cancelled") return "cancelled";
-            return ""; // all others remain neutral
+            if (stage == ShipmentStatus.Created) return "done";
+            if (stage == ShipmentStatus.Cancelled) return "cancelled";
+            return "";
         }
 
         // Delayed shipment
-        if (Status == "Delayed")
+        if (Status == ShipmentStatus.Delayed)
         {
-            if (stage == "Created" || stage == "In Transit") return "done";
-            if (stage == "Delayed") return "delayed";
-            return ""; // Delivered should not be green
+            if (stage == ShipmentStatus.Created || stage == ShipmentStatus.InTransit) return "done";
+            if (stage == ShipmentStatus.Delayed) return "delayed";
+            return "";
         }
 
-        // Normal flow (Created → In Transit → Delivered)
-        return StatusOrder.IndexOf(stage) <= StatusOrder.IndexOf(Status) ? "done" : "";
+        // Normal flow
+        return StatusOrder.IndexOf(stage) <= StatusOrder.IndexOf(Status)
+            ? "done"
+            : "";
     }
 }

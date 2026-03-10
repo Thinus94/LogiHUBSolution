@@ -20,7 +20,7 @@
                 <div>
                     <b>Status:</b>
                     <span class="status-badge @GetStatusClass(invoice.Status)">
-                        @invoice.Status
+                        @invoice.Status.GetDisplayName()
                     </span>
                 </div>
                 <div><b>Amount:</b> €@invoice.Amount</div>
@@ -29,7 +29,7 @@
 
                 <div>
                     <b>Customer:</b>
-                    <button class="btn btn-link" @onclick="OpenCustomer">
+                    <button class="btn btn-secondary" @onclick="OpenCustomer">
                         @invoice.CustomerName
                     </button>
                 </div>
@@ -38,7 +38,7 @@
                 {
                     <div>
                         <b>Shipment:</b>
-                        <button class="btn btn-link" @onclick="OpenShipment">
+                        <button class="btn btn-secondary" @onclick="OpenShipment">
                             @invoice.ShipmentNumber
                         </button>
                     </div>
@@ -84,13 +84,14 @@
         NavigationManager.NavigateTo("/shipment/" + invoice!.ShipmentId);
     }
 
-    private string GetStatusClass(string status)
+    private string GetStatusClass(InvoiceStatus status)
     {
         return status switch
         {
-            "Paid" => "status-paid",
-            "Pending" => "status-pending",
-            "Overdue" => "status-overdue",
+            InvoiceStatus.Paid => "status-paid",
+            InvoiceStatus.Pending => "status-pending",
+            InvoiceStatus.Overdue => "status-overdue",
+            InvoiceStatus.Cancelled => "status-cancelled",
             _ => ""
         };
     }

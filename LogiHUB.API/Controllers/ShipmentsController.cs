@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LogiHUB.API.Constants;
 using LogiHUB.Shared.DTOs;
 using LogiHUB.Shared.Models;
+using LogiHUB.Shared.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,9 +37,9 @@ namespace LogiHUB.API.Controllers
                     s.Destination.Contains(query.Search));
             }
 
-            if (!string.IsNullOrWhiteSpace(query.Status))
+            if (query.Status.HasValue)
             {
-                shipmentsQuery = shipmentsQuery.Where(s => s.Status == query.Status);
+                shipmentsQuery = shipmentsQuery.Where(s => s.Status == query.Status.Value);
             }
 
             if (query.CustomerId.HasValue)
@@ -88,7 +88,7 @@ namespace LogiHUB.API.Controllers
             var shipment = _mapper.Map<Shipment>(dto);
             shipment.Id = Guid.NewGuid();
             shipment.ShipmentNumber = $"SN-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
-            shipment.Status = ShipmentStatuses.Created;
+            shipment.Status = ShipmentStatus.Created;
             shipment.CreatedDate = DateTime.UtcNow;
 
             _context.Shipments.Add(shipment);
@@ -107,7 +107,7 @@ namespace LogiHUB.API.Controllers
             if (id != dto.Id)
                 return BadRequest();
 
-            if (!ShipmentStatuses.All.Contains(dto.Status))
+            if (!Enum.IsDefined(typeof(ShipmentStatus), dto.Status))
             {
                 return BadRequest("Invalid shipment status.");
             }

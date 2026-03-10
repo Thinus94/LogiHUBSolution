@@ -1,8 +1,10 @@
-﻿public class ShipmentQueryDto
+﻿using LogiHUB.Shared.Enums;
+
+public class ShipmentQueryDto
 {
     public string? Search { get; set; }
 
-    public string? Status { get; set; }
+    public ShipmentStatus? Status { get; set; }
 
     public Guid? CustomerId { get; set; }
 

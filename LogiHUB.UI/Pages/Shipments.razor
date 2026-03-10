@@ -85,7 +85,7 @@
                         <td>@shipment.Destination</td>
                         <td>
                             <span class="status-badge @GetStatusClass(shipment.Status)">
-                                @shipment.Status
+                                @shipment.Status.GetDisplayName()
                             </span>
                         </td>
                         <td>@shipment.PickupDate.ToShortDateString()</td>
@@ -176,15 +176,15 @@
         }
     }
 
-    private string GetStatusClass(string status)
+    private string GetStatusClass(ShipmentStatus status)
     {
         return status switch
         {
-            "Created" => "status-created",
-            "In Transit" => "status-transit",
-            "Delivered" => "status-delivered",
-            "Delayed" => "status-delayed",
-            "Cancelled" => "status-cancelled",
+            ShipmentStatus.Created => "status-created",
+            ShipmentStatus.InTransit => "status-transit",
+            ShipmentStatus.Delivered => "status-delivered",
+            ShipmentStatus.Delayed => "status-delayed",
+            ShipmentStatus.Cancelled => "status-cancelled",
             _ => ""
         };
     }

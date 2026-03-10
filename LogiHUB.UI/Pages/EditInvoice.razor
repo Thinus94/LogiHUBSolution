@@ -153,6 +153,8 @@
 
     List<ShipmentResponseDto> shipments = new();
 
+    private string? errorMessage;
+
     object FormModel => IsEditMode ? editDto : createDto;
 
     protected override async Task OnInitializedAsync()
@@ -166,6 +168,14 @@
         if (IsEditMode)
         {
             var existing = await InvoiceService.GetByIdAsync(Id!.Value);
+
+            if (existing is null)
+            {
+                // Handle missing invoice, e.g. redirect or show error
+                errorMessage = $"Error loading shipment: {ShipmentId}";
+                NavigationManager.NavigateTo("/invoices");
+                return;
+            }
 
             editDto = new UpdateInvoiceDto
             {

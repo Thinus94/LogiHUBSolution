@@ -59,3 +59,7 @@ h3 {
 .status-overdue {
     background: #dc3545;
 }
+
+.status-cancelled {
+    background: #ff0000;
+}

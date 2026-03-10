@@ -22,7 +22,7 @@ else
             <div>
                 <b>Status</b>
                 <span class="status-badge @GetStatusClass(shipment.Status)">
-                    @shipment.Status
+                    @shipment.Status.GetDisplayName()
                 </span>
             </div>
 
@@ -34,7 +34,7 @@ else
 
             <div>
                 <b>Customer</b>
-                <button class="btn btn-link"
+                <button class="btn btn-secondary"
                         @onclick="OpenCustomer">
                     @shipment.CustomerName
                 </button>
@@ -43,27 +43,29 @@ else
         </div>
     </div>
 
-    <div class="mt-3">
-
-        <button class="btn btn-primary"
-                @onclick="EditShipment">
-            Edit Shipment
-        </button>
-
-        @if (shipment.InvoiceId.HasValue)
-        {
-            <button class="btn btn-success"
-                        @onclick="OpenInvoice">
-                    Invoice: @shipment.InvoiceNumber
-            </button>
-        }
-        else
-        {
-            <button class="btn btn-warning"
-                    @onclick="CreateInvoice">
-                Create Invoice
-            </button>
-        }
+        <div class="mt-3 d-flex gap-2">
+            
+            @if (CanEditShipment)
+            {
+                <button class="btn btn-primary"
+                        @onclick="EditShipment">
+                    Edit Shipment
+                </button>
+            }
+            @if (shipment.InvoiceId.HasValue)
+            {
+                <button class="btn btn-success"
+                            @onclick="OpenInvoice">
+                        Invoice: @shipment.InvoiceNumber
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-warning"
+                        @onclick="CreateInvoice">
+                    Create Invoice
+                </button>
+            }
 
     </div>
 }
@@ -75,6 +77,8 @@ else
     [Parameter] public Guid Id { get; set; }
 
     ShipmentResponseDto? shipment;
+
+    bool CanEditShipment => shipment != null && shipment.Status != ShipmentStatus.Delivered && shipment.Status != ShipmentStatus.Cancelled;
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,15 +105,15 @@ else
         NavigationManager.NavigateTo($"/edit-invoice?shipmentId={shipment!.Id}&customerId={shipment.CustomerId}");
     }
 
-string GetStatusClass(string status)
+string GetStatusClass(ShipmentStatus status)
 {
     return status switch
     {
-        "Created" => "status-created",
-        "In Transit" => "status-transit",
-        "Delivered" => "status-delivered",
-        "Delayed" => "status-delayed",
-        "Cancelled" => "status-cancelled",
+        ShipmentStatus.Created => "status-created",
+        ShipmentStatus.InTransit => "status-transit",
+        ShipmentStatus.Delivered => "status-delivered",
+        ShipmentStatus.Delayed => "status-delayed",
+        ShipmentStatus.Cancelled => "status-cancelled",
         _ => ""
     };
 }

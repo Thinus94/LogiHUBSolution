@@ -1,7 +1,7 @@
 .app-shell {
     display: flex;
     min-height: 100vh;
-    background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/images/bg2.jpg') no-repeat center center fixed;
+    background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)), url('/images/bg2.jpg') no-repeat center center fixed;
     background-size: cover;
 }
 
@@ -10,19 +10,19 @@
 /* ===================== */
 
 .sidebar {
-    width: 240px;
-    background: rgba(10, 15, 25, 0.8);
-    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.25); /* darker glass */
+    backdrop-filter: blur(12px);
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease;
 }
 
 .logo {
     font-size: 1.8rem;
     font-weight: bold;
-    color: white;
+    color: #1b2a3a;
     margin-bottom: 2rem;
 }
 
@@ -37,28 +37,34 @@
     /* Sidebar nav buttons */
     .sidebar-nav .sidebar-btn {
         display: block;
-        padding: 0.75rem 1rem;
-        background-color: rgba(10, 15, 25, 0.8);
-        backdrop-filter: blur(10px);
+        padding: 0.9rem 1rem;
+        background: rgba(0,0,0,0.15);
+        backdrop-filter: blur(8px);
         color: white;
-        border: none;
-        border-radius: 8px;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 6px;
         font-weight: 600;
         cursor: pointer;
         text-align: left;
         transition: all 0.2s ease;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
     }
 
         .sidebar-nav .sidebar-btn:hover {
-            background-color: #145ca8;
-            transform: translateX(3px);
+            background: #e6f0ff;
+            border-color: #4da3ff;
+            transform: translateX(4px);
         }
 
         .sidebar-nav .sidebar-btn.active {
-            background-color: #0f4a87;
-            color: white;
+            background: #dbe9ff;
+            border-color: #4da3ff;
+            color: #1b2a3a
         }
+
+.sidebar-btn i {
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
 
 /* ===================== */
 /* MAIN AREA */
@@ -78,7 +84,7 @@
     align-items: center;
     padding: 0 2rem;
     color: white;
-    background: rgba(10, 15, 25, 0.75);
+    background: rgba(10, 15, 25, 0.6);
     backdrop-filter: blur(12px);
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
