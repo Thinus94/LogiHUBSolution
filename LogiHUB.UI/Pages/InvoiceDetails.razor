@@ -1,0 +1,97 @@
+﻿@page "/invoice/{Id:guid}"
+
+@inject InvoiceService InvoiceService
+@inject NavigationManager NavigationManager
+
+<div class="page-blur-container">
+
+    @if (invoice == null)
+    {
+        <p>Loading invoice...</p>
+    }
+    else
+    {
+        <h3>Invoice @invoice.InvoiceNumber</h3>
+
+        <div class="details-card">
+
+            <div class="details-grid">
+
+                <div>
+                    <b>Status:</b>
+                    <span class="status-badge @GetStatusClass(invoice.Status)">
+                        @invoice.Status
+                    </span>
+                </div>
+                <div><b>Amount:</b> €@invoice.Amount</div>
+                <div><b>Issue Date:</b> @invoice.IssueDate.ToShortDateString()</div>
+                <div><b>Due Date:</b> @invoice.DueDate?.ToShortDateString()</div>
+
+                <div>
+                    <b>Customer:</b>
+                    <button class="btn btn-link" @onclick="OpenCustomer">
+                        @invoice.CustomerName
+                    </button>
+                </div>
+
+                @if (invoice.ShipmentId.HasValue)
+                {
+                    <div>
+                        <b>Shipment:</b>
+                        <button class="btn btn-link" @onclick="OpenShipment">
+                            @invoice.ShipmentNumber
+                        </button>
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        <div class="mt-3">
+
+            <button class="btn btn-primary" @onclick="EditInvoice">
+                Edit Invoice
+            </button>
+
+        </div>
+    }
+
+</div>
+
+@code {
+
+    [Parameter] public Guid Id { get; set; }
+
+    InvoiceResponseDto? invoice;
+
+    protected override async Task OnInitializedAsync()
+    {
+        invoice = await InvoiceService.GetByIdAsync(Id);
+    }
+
+    void EditInvoice()
+    {
+        NavigationManager.NavigateTo("/edit-invoice/" + invoice!.Id);
+    }
+
+    void OpenCustomer()
+    {
+        NavigationManager.NavigateTo("/customer/" + invoice!.CustomerId);
+    }
+
+    void OpenShipment()
+    {
+        NavigationManager.NavigateTo("/shipment/" + invoice!.ShipmentId);
+    }
+
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Paid" => "status-paid",
+            "Pending" => "status-pending",
+            "Overdue" => "status-overdue",
+            _ => ""
+        };
+    }
+}

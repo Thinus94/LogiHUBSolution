@@ -1,4 +1,6 @@
-﻿/* Invoices page container */
+﻿/* Invoices.razor.css */
+
+/* Invoices page container */
 .page-blur-container {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -40,8 +42,13 @@
 
     /* Rows */
     .table-glass tbody tr {
-        background: rgba(255,255,255,0.05);
+        cursor: pointer;
+        transition: background 0.15s ease;
     }
+
+        .table-glass tbody tr:hover {
+            background: rgba(255,255,255,0.15);
+        }
 
         /* Alternate row */
         .table-glass tbody tr:nth-child(even) {

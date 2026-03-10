@@ -1,0 +1,117 @@
+﻿@page "/shipment/{Id:guid}"
+
+@inject ShipmentService ShipmentService
+@inject NavigationManager NavigationManager
+
+<div class="page-blur-container">
+
+@if (shipment == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>Shipment @shipment.ShipmentNumber</h3>
+
+        <ShipmentTimeline Status="@shipment.Status" />
+
+    <div class="details-card">
+
+        <div class="details-grid">
+
+            <div>
+                <b>Status</b>
+                <span class="status-badge @GetStatusClass(shipment.Status)">
+                    @shipment.Status
+                </span>
+            </div>
+
+            <div><b>Origin</b> @shipment.Origin</div>
+            <div><b>Destination</b> @shipment.Destination</div>
+            <div><b>Weight</b> @shipment.WeightKg kg</div>
+            <div><b>Pickup</b> @shipment.PickupDate.ToShortDateString()</div>
+            <div><b>Delivery</b> @shipment.DeliveryDate?.ToShortDateString()</div>
+
+            <div>
+                <b>Customer</b>
+                <button class="btn btn-link"
+                        @onclick="OpenCustomer">
+                    @shipment.CustomerName
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-3">
+
+        <button class="btn btn-primary"
+                @onclick="EditShipment">
+            Edit Shipment
+        </button>
+
+        @if (shipment.InvoiceId.HasValue)
+        {
+            <button class="btn btn-success"
+                        @onclick="OpenInvoice">
+                    Invoice: @shipment.InvoiceNumber
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-warning"
+                    @onclick="CreateInvoice">
+                Create Invoice
+            </button>
+        }
+
+    </div>
+}
+
+</div>
+
+@code {
+
+    [Parameter] public Guid Id { get; set; }
+
+    ShipmentResponseDto? shipment;
+
+    protected override async Task OnInitializedAsync()
+    {
+        shipment = await ShipmentService.GetByIdAsync(Id);
+    }
+
+    void OpenCustomer()
+    {
+        NavigationManager.NavigateTo("/customer/" + shipment!.CustomerId);
+    }
+
+    void EditShipment()
+    {
+        NavigationManager.NavigateTo("/edit-shipment/" + shipment!.Id);
+    }
+
+    void OpenInvoice()
+    {
+        NavigationManager.NavigateTo("/invoice/" + shipment!.InvoiceId);
+    }
+
+    void CreateInvoice()
+    {
+        NavigationManager.NavigateTo($"/edit-invoice?shipmentId={shipment!.Id}&customerId={shipment.CustomerId}");
+    }
+
+string GetStatusClass(string status)
+{
+    return status switch
+    {
+        "Created" => "status-created",
+        "In Transit" => "status-transit",
+        "Delivered" => "status-delivered",
+        "Delayed" => "status-delayed",
+        "Cancelled" => "status-cancelled",
+        _ => ""
+    };
+}
+
+}

@@ -1,25 +1,70 @@
-﻿.timeline-item {
-    padding: 6px 12px;
-    border-radius: 6px;
-    background: rgba(255,255,255,0.1);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(6px);
-    font-weight: 500;
-    transition: background 0.3s, color 0.3s;
+﻿.timeline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2rem 0;
+    position: relative;
 }
 
-    .timeline-item.done {
-        background: #198754; /* green for completed steps */
-        color: white;
+    /* line connecting steps */
+
+    .timeline::before {
+        content: "";
+        position: absolute;
+        top: 12px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(255,255,255,0.2);
+        z-index: 0;
     }
 
-    .timeline-item.delayed {
-        background: #ffc107; /* yellow */
-        color: black;
-    }
+/* step container */
 
-    .timeline-item.cancelled {
-        background: #dc3545; /* red */
-        color: white;
-    }
+.timeline-step {
+    position: relative;
+    text-align: center;
+    flex: 1;
+}
+
+/* circle */
+
+.timeline-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3);
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* label */
+
+.timeline-label {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: white;
+}
+
+/* completed steps */
+
+.timeline-circle.done {
+    background: #198754;
+    border-color: #198754;
+}
+
+/* delayed */
+
+.timeline-circle.delayed {
+    background: #ffc107;
+    border-color: #ffc107;
+}
+
+/* cancelled */
+
+.timeline-circle.cancelled {
+    background: #dc3545;
+    border-color: #dc3545;
+}

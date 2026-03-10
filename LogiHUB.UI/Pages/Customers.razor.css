@@ -56,9 +56,13 @@
 
     /* Row styling */
     .table-glass tbody tr {
-        border-bottom: 1px solid rgba(255,255,255,0.2);
-        background: rgba(255,255,255,0.05);
+        cursor: pointer;
+        transition: background 0.15s ease;
     }
+
+        .table-glass tbody tr:hover {
+            background: rgba(255,255,255,0.15);
+        }
 
         /* Alternate row colors */
         .table-glass tbody tr:nth-child(even) {

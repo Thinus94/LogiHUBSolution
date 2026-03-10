@@ -1,0 +1,38 @@
+﻿/* CustomerDetails.razor.css */
+
+.page-blur-container {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10, 15, 25, 0.6);
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 900px;
+    margin: 2rem auto;
+    color: white;
+}
+
+h3 {
+    color: white;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.details-card {
+    background: rgba(255,255,255,0.06);
+    padding: 1.5rem;
+    border-radius: 10px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 2rem;
+}
+
+    .details-grid b {
+        color: rgba(255,255,255,0.7);
+    }
+
+.details-actions {
+    margin-top: 1.5rem;
+}

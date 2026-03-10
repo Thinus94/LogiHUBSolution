@@ -1,0 +1,80 @@
+﻿@page "/customer/{Id:guid}"
+
+@inject CustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<div class="page-blur-container">
+
+    @if (customer == null)
+    {
+        <p>Loading customer...</p>
+    }
+    else
+    {
+        <h3>@customer.Name</h3>
+
+        <div class="details-card">
+
+            <div class="details-grid">
+
+                <div><b>Email:</b> @customer.Email</div>
+                <div><b>Phone:</b> @customer.Phone</div>
+                <div><b>Address:</b> @customer.Address</div>
+                <div><b>Shipments:</b> @customer.ShipmentCount</div>
+                <div><b>Invoices:</b> @customer.InvoiceCount</div>
+
+            </div>
+
+            <div class="mt-3">
+
+                <button class="btn btn-primary" @onclick="EditCustomer">
+                    Edit Customer
+                </button>
+
+                @if (customer.ShipmentCount > 0)
+                {
+                    <button class="btn btn-info" @onclick="ViewShipments">
+                        View Shipments
+                    </button>
+                }
+
+                @if (customer.InvoiceCount > 0)
+                {
+                    <button class="btn btn-success" @onclick="ViewInvoices">
+                        View Invoices
+                    </button>
+                }
+
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+
+    [Parameter] public Guid Id { get; set; }
+
+    CustomerResponseDto? customer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customer = await CustomerService.GetByIdAsync(Id);
+    }
+
+    void EditCustomer()
+    {
+        NavigationManager.NavigateTo("/edit-customer/" + customer!.Id);
+    }
+
+    void ViewShipments()
+    {
+        NavigationManager.NavigateTo("/shipments?customerId=" + customer!.Id);
+    }
+
+    void ViewInvoices()
+    {
+        NavigationManager.NavigateTo("/invoices?customerId=" + customer!.Id);
+    }
+
+}

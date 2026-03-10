@@ -1,11 +1,19 @@
 ﻿@using System.ComponentModel.DataAnnotations
 <div class="timeline">
+
     @foreach (var stage in StatusOrder)
     {
-        <div class="timeline-item @(GetStatusClass(stage))">
-            @stage
+        <div class="timeline-step">
+
+            <div class="timeline-circle @(GetStatusClass(stage))"></div>
+
+            <div class="timeline-label">
+                @stage
+            </div>
+
         </div>
     }
+
 </div>
 
 @code {

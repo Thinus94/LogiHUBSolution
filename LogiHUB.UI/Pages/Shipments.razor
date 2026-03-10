@@ -79,7 +79,7 @@
                 <tbody>
                 @foreach (var shipment in shipments)
                 {
-                    <tr @onclick="() => OpenShipment(shipment)">
+                    <tr @onclick="() => OpenShipment(shipment.Id)">
                         <td>@shipment.ShipmentNumber</td>
                         <td>@shipment.Origin</td>
                         <td>@shipment.Destination</td>
@@ -128,68 +128,14 @@
             </button>
 
         </div>
-
-        @if (showShipmentModal && selectedShipment != null)
-        {
-            <div class="modal-overlay">
-                <div class="modal-card">
-
-                    <div class="modal-header">
-                        <h4>Shipment Details</h4>
-                        <button class="btn-close" @onclick="CloseShipmentModal"></button>
-                    </div>
-
-                    <div class="modal-body">
-
-                        <p><b>Shipment Number:</b> @selectedShipment.ShipmentNumber</p>
-                        <p><b>Status:</b> @selectedShipment.Status</p>
-                        <p><b>Origin:</b> @selectedShipment.Origin</p>
-                        <p><b>Destination:</b> @selectedShipment.Destination</p>
-                        <p><b>Pickup:</b> @selectedShipment.PickupDate.ToShortDateString()</p>
-                        <p><b>Delivery:</b> @selectedShipment.DeliveryDate?.ToShortDateString()</p>
-                        <p><b>Weight:</b> @selectedShipment.WeightKg kg</p>
-                        <p><b>Customer:</b> @selectedShipment.CustomerName</p>
-                        <ShipmentTimeline Status="@selectedShipment.Status" />
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-primary"
-                                @onclick="@(() => EditShipment(selectedShipment.Id))">
-                            Edit
-                        </button>
-                        @if (selectedShipment.InvoiceId.HasValue)
-                        {
-                            <button class="btn btn-info"
-                                    @onclick="@(() => OpenInvoice(selectedShipment.InvoiceId.Value))">
-                                Open Invoice: @selectedShipment.InvoiceNumber
-                            </button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-warning"
-                                    @onclick="@(() => CreateInvoice(selectedShipment.Id, selectedShipment.CustomerId))">
-                                Create Invoice
-                            </button>
-                        }
-                        <button class="btn btn-secondary"
-                                @onclick="CloseShipmentModal">
-                            Close
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-        }
     }
 </div>
 
 @code {
     private List<ShipmentResponseDto> shipments = new();
-    private ShipmentResponseDto? selectedShipment;
     [Parameter]
     [SupplyParameterFromQuery]
     public Guid? CustomerId { get; set; }
-    private bool showShipmentModal = false;
     private bool isLoading = true;
     private string? errorMessage;
     string searchTerm = "";
@@ -261,10 +207,9 @@
         await LoadShipments();
     }
 
-    private void OpenShipment(ShipmentResponseDto shipment)
+    private void OpenShipment(Guid id)
     {
-        selectedShipment = shipment;
-        showShipmentModal = true;
+        NavigationManager.NavigateTo($"/shipment/{id}");
     }
 
     private void CreateInvoice(Guid shipmentId, Guid customerId)
@@ -284,11 +229,6 @@
     private void OpenInvoice(Guid invoiceId)
     {
         NavigationManager.NavigateTo($"/edit-invoice/{invoiceId}");
-    }
-
-    private void CloseShipmentModal()
-    {
-        showShipmentModal = false;
     }
 
     private void CreateShipment()

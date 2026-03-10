@@ -15,65 +15,6 @@
         </button>
     </div>
 
-    @if (showInvoiceModal && selectedInvoice != null)
-    {
-        <div class="modal-overlay">
-            <div class="modal-card">
-
-                <div class="modal-header">
-                    <h4>Invoice Details</h4>
-                    <button class="btn-close"
-                            @onclick="CloseInvoiceModal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <p><b>Invoice:</b> @selectedInvoice.InvoiceNumber</p>
-
-                    <p>
-                        <b>Status:</b>
-                        <span class="status-badge @GetStatusClass(selectedInvoice.Status)">
-                            @selectedInvoice.Status
-                        </span>
-                    </p>
-
-                    <p><b>Amount:</b> €@selectedInvoice.Amount</p>
-                    <p><b>Customer:</b> @selectedInvoice.CustomerName</p>
-                    <p><b>Shipment:</b> @selectedInvoice.ShipmentNumber</p>
-
-                    <p><b>Issued:</b> @selectedInvoice.IssueDate.ToShortDateString()</p>
-                    <p><b>Due:</b> @selectedInvoice.DueDate?.ToShortDateString()</p>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button class="btn btn-primary"
-                            @onclick="@(() => EditInvoice(selectedInvoice.Id))">
-                        Edit
-                    </button>
-                    <button class="btn btn-secondary"
-                            @onclick="CloseInvoiceModal">
-                        Close
-                    </button>
-                    <button class="btn btn-sm btn-outline-primary"
-                            @onclick="() => OpenCustomer(selectedInvoice.CustomerId)">
-                        Open Customer: @selectedInvoice.CustomerName
-                    </button>
-
-                    @if (selectedInvoice.ShipmentId.HasValue)
-                    {
-                        <button class="btn btn-sm btn-outline-info"
-                                @onclick="() => OpenShipment(selectedInvoice.ShipmentId)">
-                            Open Shipment: @selectedInvoice.ShipmentNumber
-                        </button>
-                    }
-                </div>
-
-            </div>
-        </div>
-    }
-
     @if (isLoading)
     {
         <p><em>Loading invoices...</em></p>
@@ -105,7 +46,7 @@
 
                     @foreach (var invoice in invoices)
                     {
-                        <tr @onclick="() => OpenInvoice(invoice)">
+                        <tr @onclick="() => OpenInvoice(invoice.Id)">
 
                             <td>@invoice.InvoiceNumber</td>
 
@@ -156,13 +97,9 @@
 
     private List<InvoiceResponseDto> invoices = new();
 
-    private InvoiceResponseDto? selectedInvoice;
-
     [Parameter]
     [SupplyParameterFromQuery]
     public Guid? CustomerId { get; set; }
-
-    private bool showInvoiceModal;
 
     private bool isLoading = true;
 
@@ -191,28 +128,9 @@
         };
     }
 
-    private void OpenInvoice(InvoiceResponseDto invoice)
+    private void OpenInvoice(Guid id)
     {
-        selectedInvoice = invoice;
-        showInvoiceModal = true;
-    }
-
-    private void CloseInvoiceModal()
-    {
-        showInvoiceModal = false;
-    }
-
-    void OpenShipment(Guid? shipmentId)
-    {
-        if (shipmentId.HasValue)
-        {
-            NavigationManager.NavigateTo($"/edit-shipment/{shipmentId.Value}");
-        }
-    }
-
-    void OpenCustomer(Guid customerId)
-    {
-        NavigationManager.NavigateTo($"/edit-customer/{customerId}");
+        NavigationManager.NavigateTo($"/invoice/{id}");
     }
 
     private void CreateInvoice()

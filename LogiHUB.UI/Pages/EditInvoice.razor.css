@@ -1,4 +1,6 @@
-﻿/* Container */
+﻿/* EditCustomer.razor.css */
+
+/* Container */
 .page-blur-container {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
