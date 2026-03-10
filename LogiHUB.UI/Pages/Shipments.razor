@@ -1,7 +1,6 @@
 ﻿@page "/shipments"
 @inject ShipmentService ShipmentService
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JsRuntime
 
 <!-- Glass Blur Container -->
 <div class="page-blur-container">
@@ -73,7 +72,7 @@
                     <th>Delivery</th>
                     <th>Weight (kg)</th>
                     <th>Customer</th>
-                    <th>Actions</th>
+                    <th>Created Date</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -92,19 +91,7 @@
                         <td>@shipment.DeliveryDate?.ToShortDateString()</td>
                         <td>@shipment.WeightKg</td>
                         <td>@shipment.CustomerName</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary"
-                                    @onclick:stopPropagation="true"
-                                    @onclick="@(() => EditShipment(shipment.Id))">
-                                Edit
-                            </button>
-
-                            <button class="btn btn-sm btn-danger"
-                                    @onclick:stopPropagation="true"
-                                    @onclick="@(() => DeleteShipment(shipment.Id))">
-                                Delete
-                            </button>
-                        </td>
+                        <td>@shipment.CreatedDate</td>
                     </tr>
                 }
                 </tbody>
@@ -212,48 +199,8 @@
         NavigationManager.NavigateTo($"/shipment/{id}");
     }
 
-    private void CreateInvoice(Guid shipmentId, Guid customerId)
-    {
-        var shipment = shipments.FirstOrDefault(s => s.Id == shipmentId);
-
-        if (shipment?.InvoiceId != null)
-        {
-            // If invoice already exists, open it
-            OpenInvoice(shipment.InvoiceId.Value);
-            return;
-        }
-
-        NavigationManager.NavigateTo($"/edit-invoice?shipmentId={shipmentId}&customerId={customerId}");
-    }
-
-    private void OpenInvoice(Guid invoiceId)
-    {
-        NavigationManager.NavigateTo($"/edit-invoice/{invoiceId}");
-    }
-
     private void CreateShipment()
     {
         NavigationManager.NavigateTo("/edit-shipment");
-    }
-
-    private void EditShipment(Guid id)
-    {
-        NavigationManager.NavigateTo($"/edit-shipment/{id}");
-    }
-
-    private async Task DeleteShipment(Guid id)
-    {
-        if (await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this shipment?"))
-        {
-            try
-            {
-                await ShipmentService.DeleteAsync(id);
-                await LoadShipments(); // refresh list
-            }
-            catch (Exception ex)
-            {
-                errorMessage = $"Error deleting shipment: {ex.Message}";
-            }
-        }
     }
 }

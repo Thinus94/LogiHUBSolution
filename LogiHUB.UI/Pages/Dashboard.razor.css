@@ -126,10 +126,10 @@
 
 /* Overdue */
 .stat-card-overdue {
-    border-color: #dc3545;
+    border-color: #ffc107;
 }
 
 /* Cancelled Invoice */
 .stat-card-cancelledInv {
-    border-color: #ff0000;
+    border-color: #dc3545;
 }

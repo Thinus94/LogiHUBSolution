@@ -2,7 +2,6 @@
 
 @inject InvoiceService InvoiceService
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JsRuntime
 
 <div class="page-blur-container">
 
@@ -38,7 +37,6 @@
                         <th>Shipment</th>
                         <th>Issued</th>
                         <th>Due</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
 
@@ -65,22 +63,6 @@
                             <td>@invoice.IssueDate.ToShortDateString()</td>
 
                             <td>@invoice.DueDate?.ToShortDateString()</td>
-
-                            <td>
-
-                                <button class="btn btn-sm btn-primary"
-                                        @onclick:stopPropagation="true"
-                                        @onclick="@(() => EditInvoice(invoice.Id))">
-                                    Edit
-                                </button>
-
-                                <button class="btn btn-sm btn-danger"
-                                        @onclick:stopPropagation="true"
-                                        @onclick="@(() => DeleteInvoice(invoice.Id))">
-                                    Delete
-                                </button>
-
-                            </td>
 
                         </tr>
                     }
@@ -142,15 +124,6 @@
     private void EditInvoice(Guid id)
     {
         NavigationManager.NavigateTo($"/edit-invoice/{id}");
-    }
-
-    private async Task DeleteInvoice(Guid id)
-    {
-        if (await JsRuntime.InvokeAsync<bool>("confirm", "Delete invoice?"))
-        {
-            await InvoiceService.DeleteAsync(id);
-            await LoadInvoices();
-        }
     }
 
 }

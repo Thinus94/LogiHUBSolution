@@ -17,5 +17,7 @@ namespace LogiHUB.Shared.DTOs
         public int ShipmentCount { get; set; }
 
         public int InvoiceCount { get; set; }
+
+        public DateTime CreatedDate { get; set; }
     }
 }

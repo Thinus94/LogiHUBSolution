@@ -75,9 +75,9 @@
 }
 
 .status-overdue {
-    background: #dc3545;
+    background: #ffc107;
 }
 
 .status-cancelled {
-    background: #ff0000;
+    background: #dc3545;
 }

@@ -28,5 +28,7 @@ namespace LogiHUB.Shared.DTOs
         public Guid? InvoiceId { get; set; }
 
         public string? InvoiceNumber { get; set; }
+
+        public DateTime CreatedDate { get; set; }
     }
 }
