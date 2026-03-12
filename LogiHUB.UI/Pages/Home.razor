@@ -1,5 +1,8 @@
 ﻿@page "/"
 
+@inject ClientService ClientService
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
 <PageTitle>Home</PageTitle>
@@ -30,17 +33,60 @@
 {
     <div class="modal-overlay">
 
-        <div class="modal-card">
+        <div class="page-blur-container modal-form">
 
             <h3>Client Login</h3>
 
-            <input placeholder="Email" @bind="loginEmail" />
-            <input placeholder="Password" type="password" @bind="loginPassword" />
+            <EditForm Model="this" OnValidSubmit="SubmitLogin">
 
-            <div class="modal-actions">
-                <button class="primary-btn">Login</button>
-                <button class="secondary-btn" @onclick="CloseModal">Cancel</button>
-            </div>
+                <div class="mb-3">
+                    <InputText class="form-control"
+                               placeholder="Email"
+                               @bind-Value="loginEmail" />
+                </div>
+
+                <div class="mb-3 password-container">
+
+                    <input class="form-control password-input"
+                           placeholder="Password"
+                           type="@loginPasswordType"
+                           @bind="loginPassword" />
+
+                    <button type="button"
+                            class="peek-btn"
+                            @onclick="ToggleLoginPassword">
+
+                        <i class="bi @(loginPasswordType == "password" ? "bi-eye" : "bi-eye-slash")"></i>
+
+                    </button>
+
+                </div>
+
+                <div class="modal-actions">
+
+                    <button type="submit"
+                            class="btn btn-success"
+                            disabled="@isSubmitting">
+
+                        @(isSubmitting ? "Logging in..." : "Login")
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            @onclick="CloseModal"
+                            disabled="@isSubmitting">
+                        Cancel
+                    </button>
+
+                </div>
+
+                @if (!string.IsNullOrEmpty(loginError))
+                {
+                    <div class="alert mt-3">@loginError</div>
+                }
+
+            </EditForm>
 
         </div>
 
@@ -51,18 +97,84 @@
 {
     <div class="modal-overlay">
 
-        <div class="modal-card">
+        <div class="page-blur-container modal-form">
 
             <h3>Become a Client</h3>
 
-            <input placeholder="Company Name" />
-            <input placeholder="Contact Email" />
-            <input placeholder="Phone" />
+            <EditForm Model="this" OnValidSubmit="SubmitRegister">
 
-            <div class="modal-actions">
-                <button class="primary-btn">Submit</button>
-                <button class="secondary-btn" @onclick="CloseModal">Cancel</button>
-            </div>
+                <div class="mb-3">
+                    <InputText class="form-control"
+                               placeholder="Company Name"
+                               @bind-Value="regCompanyName" />
+                </div>
+
+                <div class="mb-3">
+                    <InputText class="form-control"
+                               placeholder="Contact Name"
+                               @bind-Value="regContactName" />
+                </div>
+
+                <div class="mb-3">
+                    <InputText class="form-control"
+                               placeholder="Email"
+                               @bind-Value="regEmail" />
+                </div>
+
+                <div class="mb-3 password-container">
+
+                    <input class="form-control password-input"
+                           placeholder="Password"
+                           type="@regPasswordType"
+                           @bind="regPassword" />
+
+                    <button type="button"
+                            class="peek-btn"
+                            @onclick="ToggleRegPassword">
+
+                        <i class="bi @(regPasswordType == "password" ? "bi-eye" : "bi-eye-slash")"></i>
+
+                    </button>
+
+                </div>
+
+                <div class="mb-3">
+                    <InputText class="form-control"
+                               placeholder="Phone"
+                               @bind-Value="regPhone" />
+                </div>
+
+                <div class="mb-3">
+                    <InputText class="form-control"
+                               placeholder="Address"
+                               @bind-Value="regAddress" />
+                </div>
+
+                <div class="modal-actions">
+
+                    <button type="submit"
+                            class="btn btn-success"
+                            disabled="@isSubmitting">
+
+                        @(isSubmitting ? "Registering..." : "Register")
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            @onclick="CloseModal"
+                            disabled="@isSubmitting">
+                        Cancel
+                    </button>
+
+                </div>
+
+                @if (!string.IsNullOrEmpty(regError))
+                {
+                    <div class="alert mt-3">@regError</div>
+                }
+
+            </EditForm>
 
         </div>
 
@@ -72,31 +184,130 @@
 @code {
     bool showLogin = false;
     bool showRegister = false;
+    bool isSubmitting = false;
 
-    string? loginEmail;
-    string? loginPassword;
+    string loginEmail = string.Empty;
+    string loginPassword = string.Empty;
+    string loginError = string.Empty;
 
-    void ShowLogin()
-    {
-        showLogin = true;
-    }
+    string regCompanyName = string.Empty;
+    string regContactName = string.Empty;
+    string regEmail = string.Empty;
+    string regPassword = string.Empty;
+    string regPhone = string.Empty;
+    string regAddress = string.Empty;
+    string regError = string.Empty;
 
-    void ShowRegister()
-    {
-        showRegister = true;
-    }
+    // Password peek state
+    private string loginPasswordType = "password";
+    private string regPasswordType = "password";
 
-    void CloseModal()
+    void ShowLogin() => showLogin = true;
+    void ShowRegister() => showRegister = true;
+
+    private void ToggleLoginPassword() => 
+        loginPasswordType = loginPasswordType == "password" ? "text" : "password";
+
+    private void ToggleRegPassword() => 
+        regPasswordType = regPasswordType == "password" ? "text" : "password";
+
+    private void CloseModal()
     {
         showLogin = false;
         showRegister = false;
+        loginError = string.Empty;
+        regError = string.Empty;
+
+        loginEmail = string.Empty;
+        loginPassword = string.Empty;
+
+        regCompanyName = string.Empty;
+        regContactName = string.Empty;
+        regEmail = string.Empty;
+        regPassword = string.Empty;
+        regPhone = string.Empty;
+        regAddress = string.Empty;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await LocalStorage.GetItemAsync<string>("authToken");
+        if (!string.IsNullOrEmpty(token))
+        {
+            NavigationManager.NavigateTo("/client", true);
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
             await JS.InvokeVoidAsync("startTypingEffect");
+    }
+
+    private async Task SubmitLogin()
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        loginError = string.Empty;
+
+        try
+        {
+            var dto = new ClientLoginDto { Email = loginEmail, Password = loginPassword };
+            var success = await ClientService.Login(dto);
+
+            if (success) NavigationManager.NavigateTo("/client", true);
+            else loginError = "Invalid credentials.";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task SubmitRegister()
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        regError = string.Empty;
+
+        var dto = new ClientRegistrationDto
+        {
+            CompanyName = regCompanyName,
+            ContactName = regContactName,
+            Email = regEmail,
+            Password = regPassword,
+            Phone = regPhone,
+            Address = regAddress
+        };
+        try
+        {
+            await ClientService.Register(dto);
+
+            // Automatically log in after registration
+            var loginDto = new ClientLoginDto
+            {
+                Email = regEmail,
+                Password = regPassword
+            };
+
+            var success = await ClientService.Login(loginDto);
+
+            if (success)
+            {
+                NavigationManager.NavigateTo("/client", true);
+            }
+            else
+            {
+                regError = "Registration succeeded but login failed.";
+            }
+        }
+        catch (Exception ex)
+        {
+            regError = ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
         }
     }
 }

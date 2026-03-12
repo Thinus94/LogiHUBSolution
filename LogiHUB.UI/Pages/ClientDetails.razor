@@ -1,0 +1,58 @@
+﻿@page "/client"
+@inject LogiHUB.UI.Services.ClientService ClientService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+
+<PageTitle>My Profile</PageTitle>
+
+<div class="page-blur-container">
+
+    @if (client == null)
+    {
+        <p>Loading client...</p>
+    }
+    else
+    {
+        <h3>@client.CompanyName</h3>
+
+        <div class="details-card">
+
+            <div class="details-grid">
+                <div><b>Contact:</b> @client.ContactName</div>
+                <div><b>Email:</b> @client.Email</div>
+                <div><b>Phone:</b> @client.Phone</div>
+                <div><b>Address:</b> @client.Address</div>
+                <div><b>Customers:</b> @client.CustomerCount</div>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-primary" @onclick="NavigateToEdit">
+                    Update Profile
+                </button>
+                <button class="btn btn-secondary" @onclick="Logout">
+                    Logout
+                </button>
+            </div>
+
+        </div>
+    }
+</div>
+
+@code {
+    private ClientResponseDto? client;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var clientId = await LocalStorage.GetItemAsync<Guid>("clientId");
+        client = await ClientService.Get(clientId);
+    }
+
+    private void NavigateToEdit() => Navigation.NavigateTo("/client/edit");
+
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("authToken");
+        await LocalStorage.RemoveItemAsync("clientId");
+        Navigation.NavigateTo("/", true);
+    }
+}

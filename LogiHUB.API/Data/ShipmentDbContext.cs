@@ -13,8 +13,20 @@ public class ShipmentDbContext : DbContext
 
     public DbSet<Invoice> Invoices => Set<Invoice>();
 
+    public DbSet<Client> Clients => Set<Client>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Customer>()
+            .HasOne(c => c.Client)
+            .WithMany(c => c.Customers)
+            .HasForeignKey(c => c.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Client>()
+            .HasIndex(c => c.Email)
+            .IsUnique();
+
         modelBuilder.Entity<Shipment>()
             .HasOne(s => s.Customer)
             .WithMany(c => c.Shipments)

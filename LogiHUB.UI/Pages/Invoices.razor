@@ -18,6 +18,10 @@
     {
         <p><em>Loading invoices...</em></p>
     }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
     else if (invoices.Count == 0)
     {
         <p>No invoices found.</p>
@@ -85,6 +89,8 @@
 
     private bool isLoading = true;
 
+    private string? errorMessage;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadInvoices();
@@ -92,11 +98,19 @@
 
     private async Task LoadInvoices()
     {
-        isLoading = true;
-
-        invoices = await InvoiceService.GetAllAsync(CustomerId);
-
-        isLoading = false;
+        try
+        {
+            isLoading = true;
+            invoices = await InvoiceService.GetAllAsync(CustomerId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading invoices: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private string GetStatusClass(InvoiceStatus status)
@@ -119,11 +133,6 @@
     private void CreateInvoice()
     {
         NavigationManager.NavigateTo("/edit-invoice");
-    }
-
-    private void EditInvoice(Guid id)
-    {
-        NavigationManager.NavigateTo($"/edit-invoice/{id}");
     }
 
 }

@@ -8,13 +8,14 @@ namespace LogiHUB.API.Mapping
     {
         public MappingProfile()
         {
-            // Create Shipment
+            // -----------------------------
+            // SHIPMENTS
+            // -----------------------------
+
             CreateMap<CreateShipmentDto, Shipment>();
 
-            // Update Shipment
             CreateMap<UpdateShipmentDto, Shipment>();
 
-            // Entity -> Shipment Response DTO
             CreateMap<Shipment, ShipmentResponseDto>()
                 .ForMember(dest => dest.CustomerName,
                     opt => opt.MapFrom(src => src.Customer!.Name))
@@ -23,31 +24,51 @@ namespace LogiHUB.API.Mapping
                 .ForMember(dest => dest.InvoiceNumber,
                     opt => opt.MapFrom(src => src.Invoice != null ? src.Invoice.InvoiceNumber : null));
 
-            // Create Customer
+
+            // -----------------------------
+            // CUSTOMERS
+            // -----------------------------
+
             CreateMap<CreateCustomerDto, Customer>();
 
-            // Update Customer
             CreateMap<UpdateCustomerDto, Customer>();
 
-            // Entity -> Customer Response DTO
             CreateMap<Customer, CustomerResponseDto>()
                 .ForMember(dest => dest.ShipmentCount,
                     opt => opt.MapFrom(src => src.Shipments.Count))
                 .ForMember(dest => dest.InvoiceCount,
-                    opt => opt.MapFrom(src => src.Shipments.Count(s => s.Invoice != null)));
+                    opt => opt.MapFrom(src => src.Shipments.Count(s => s.Invoice != null)))
+                .ForMember(dest => dest.ClientId,
+                    opt => opt.MapFrom(src => src.ClientId));
 
-            // Create Invoice
+
+            // -----------------------------
+            // INVOICES
+            // -----------------------------
+
             CreateMap<CreateInvoiceDto, Invoice>();
 
-            // Update Invoice
             CreateMap<UpdateInvoiceDto, Invoice>();
 
-            // Entity -> Invoice Response DTO
             CreateMap<Invoice, InvoiceResponseDto>()
                 .ForMember(dest => dest.CustomerName,
                     opt => opt.MapFrom(src => src.Customer!.Name))
                 .ForMember(dest => dest.ShipmentNumber,
                     opt => opt.MapFrom(src => src.Shipment != null ? src.Shipment.ShipmentNumber : null));
+
+
+            // -----------------------------
+            // CLIENTS
+            // -----------------------------
+
+            CreateMap<ClientRegistrationDto, Client>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+
+            CreateMap<UpdateClientDto, Client>();
+
+            CreateMap<Client, ClientResponseDto>()
+                .ForMember(dest => dest.CustomerCount,
+                    opt => opt.MapFrom(src => src.Customers.Count));
         }
     }
 }

@@ -1,97 +1,124 @@
 ﻿using AutoMapper;
+using LogiHUB.API.Helpers;
 using LogiHUB.Shared.DTOs;
 using LogiHUB.Shared.Enums;
 using LogiHUB.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-[ApiController]
-[Route("api/invoices")]
-public class InvoicesController : ControllerBase
+namespace LogiHUB.API.Controllers
 {
-    private readonly ShipmentDbContext _context;
-    private readonly IMapper _mapper;
-
-    public InvoicesController(ShipmentDbContext context, IMapper mapper)
+    [Authorize]
+    [ApiController]
+    [Route("api/invoices")]
+    public class InvoicesController : ControllerBase
     {
-        _context = context;
-        _mapper = mapper;
-    }
+        private readonly ShipmentDbContext _context;
+        private readonly IMapper _mapper;
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll(Guid? customerId)
-    {
-        var query = _context.Invoices
-            .Include(i => i.Customer)
-            .Include(i => i.Shipment)
-            .AsQueryable();
-
-        if (customerId.HasValue)
+        public InvoicesController(ShipmentDbContext context, IMapper mapper)
         {
-            query = query.Where(i => i.CustomerId == customerId.Value);
+            _context = context;
+            _mapper = mapper;
         }
 
-        var invoices = await query.ToListAsync();
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll(Guid? customerId)
+        {
+            var clientId = GetClient.GetClientId(User);
 
-        return Ok(_mapper.Map<List<InvoiceResponseDto>>(invoices));
-    }
+            var query = _context.Invoices
+                .Include(i => i.Customer)
+                .Include(i => i.Shipment)
+                .Where(i => i.Customer!.ClientId == clientId)
+                .AsQueryable();
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<InvoiceResponseDto>> GetById(Guid id)
-    {
-        var invoice = await _context.Invoices
-            .Include(i => i.Customer)
-            .Include(i => i.Shipment)
-            .FirstOrDefaultAsync(i => i.Id == id);
+            if (customerId.HasValue)
+            {
+                query = query.Where(i => i.CustomerId == customerId.Value);
+            }
 
-        if (invoice == null) return NotFound();
+            var invoices = await query.ToListAsync();
 
-        return Ok(_mapper.Map<InvoiceResponseDto>(invoice));
-    }
+            return Ok(_mapper.Map<List<InvoiceResponseDto>>(invoices));
+        }
 
-    [HttpPost]
-    public async Task<ActionResult> Create(CreateInvoiceDto dto)
-    {
-        var invoice = _mapper.Map<Invoice>(dto);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<InvoiceResponseDto>> GetById(Guid id)
+        {
+            var clientId = GetClient.GetClientId(User);
 
-        invoice.Id = Guid.NewGuid();
-        invoice.InvoiceNumber = $"INV-{Guid.NewGuid().ToString()[..8].ToUpper()}";
-        invoice.Status =  dto.Status;
+            var invoice = await _context.Invoices
+                .Include(i => i.Customer)
+                .Include(i => i.Shipment)
+                .FirstOrDefaultAsync(i => i.Id == id && i.Customer!.ClientId == clientId);
 
-        _context.Invoices.Add(invoice);
-        await _context.SaveChangesAsync();
+            if (invoice == null) return NotFound();
 
-        return Ok();
-    }
+            return Ok(_mapper.Map<InvoiceResponseDto>(invoice));
+        }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, UpdateInvoiceDto dto)
-    {
-        if (id != dto.Id) return BadRequest();
+        [HttpPost]
+        public async Task<ActionResult> Create(CreateInvoiceDto dto)
+        {
+            var clientId = GetClient.GetClientId(User);
 
-        var invoice = await _context.Invoices.FindAsync(id);
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.Id == dto.CustomerId && c.ClientId == clientId);
 
-        if (invoice == null) return NotFound();
+            if (customer == null)
+                return BadRequest("Invalid customer.");
 
-        _mapper.Map(dto, invoice);
+            var invoice = _mapper.Map<Invoice>(dto);
 
-        await _context.SaveChangesAsync();
+            invoice.Id = Guid.NewGuid();
+            invoice.InvoiceNumber = $"INV-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+            invoice.Status = dto.Status;
 
-        return NoContent();
-    }
+            _context.Invoices.Add(invoice);
+            await _context.SaveChangesAsync();
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var invoice = await _context.Invoices.FindAsync(id);
+            return Ok();
+        }
 
-        if (invoice == null) return NotFound();
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, UpdateInvoiceDto dto)
+        {
+            if (id != dto.Id) return BadRequest();
 
-        _context.Invoices.Remove(invoice);
+            var clientId = GetClient.GetClientId(User);
 
-        await _context.SaveChangesAsync();
+            var invoice = await _context.Invoices
+                .Include(i => i.Customer)
+                .FirstOrDefaultAsync(i => i.Id == id && i.Customer!.ClientId == clientId);
 
-        return NoContent();
+            if (invoice == null) return NotFound();
+
+            _mapper.Map(dto, invoice);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var clientId = GetClient.GetClientId(User);
+
+            var invoice = await _context.Invoices
+                .Include(i => i.Customer)
+                .FirstOrDefaultAsync(i => i.Id == id && i.Customer!.ClientId == clientId);
+
+            if (invoice == null) return NotFound();
+
+            _context.Invoices.Remove(invoice);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

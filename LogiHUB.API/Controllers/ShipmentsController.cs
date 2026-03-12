@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
+using LogiHUB.API.Helpers;
 using LogiHUB.Shared.DTOs;
-using LogiHUB.Shared.Models;
 using LogiHUB.Shared.Enums;
+using LogiHUB.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LogiHUB.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/shipments")]
     public class ShipmentsController : ControllerBase
@@ -24,9 +27,12 @@ namespace LogiHUB.API.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedResult<ShipmentResponseDto>>> GetAll([FromQuery] ShipmentQueryDto query)
         {
+            var clientId = GetClient.GetClientId(User);
+
             var shipmentsQuery = _context.Shipments
                 .Include(s => s.Customer)
                 .Include(s => s.Invoice)
+                .Where(s => s.Customer!.ClientId == clientId)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.Search))
@@ -70,10 +76,12 @@ namespace LogiHUB.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ShipmentResponseDto>> GetById(Guid id)
         {
+            var clientId = GetClient.GetClientId(User);
+
             var shipment = await _context.Shipments
                 .Include(s => s.Customer)
                 .Include(s => s.Invoice)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == id && s.Customer!.ClientId == clientId);
 
             if (shipment == null) return NotFound();
 
@@ -85,6 +93,14 @@ namespace LogiHUB.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ShipmentResponseDto>> Create(CreateShipmentDto dto)
         {
+            var clientId = GetClient.GetClientId(User);
+
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.Id == dto.CustomerId && c.ClientId == clientId);
+
+            if (customer == null)
+                return BadRequest("Invalid customer.");
+
             var shipment = _mapper.Map<Shipment>(dto);
             shipment.Id = Guid.NewGuid();
             shipment.ShipmentNumber = $"SN-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
@@ -112,7 +128,12 @@ namespace LogiHUB.API.Controllers
                 return BadRequest("Invalid shipment status.");
             }
 
-            var shipment = await _context.Shipments.FindAsync(id);
+            var clientId = GetClient.GetClientId(User);
+
+            var shipment = await _context.Shipments
+                .Include(s => s.Customer)
+                .FirstOrDefaultAsync(s => s.Id == id && s.Customer!.ClientId == clientId);
+
             if (shipment == null) return NotFound();
 
             _mapper.Map(dto, shipment);
@@ -125,7 +146,12 @@ namespace LogiHUB.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var shipment = await _context.Shipments.FindAsync(id);
+            var clientId = GetClient.GetClientId(User);
+
+            var shipment = await _context.Shipments
+                .Include(s => s.Customer)
+                .FirstOrDefaultAsync(s => s.Id == id && s.Customer!.ClientId == clientId);
+
             if (shipment == null) return NotFound();
 
             _context.Shipments.Remove(shipment);

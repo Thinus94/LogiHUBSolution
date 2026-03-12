@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using LogiHUB.Shared.Models;
+﻿using AutoMapper;
 using LogiHUB.Shared.DTOs;
-using AutoMapper;
+using LogiHUB.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using LogiHUB.API.Helpers;
 
 namespace LogiHUB.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/customers")]
     public class CustomersController : ControllerBase
@@ -23,7 +26,10 @@ namespace LogiHUB.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerResponseDto>>> GetAll()
         {
+            var clientId = GetClient.GetClientId(User);
+
             var customers = await _context.Customers
+                .Where(c => c.ClientId == clientId)
                 .Include(c => c.Shipments)
                 .Include(c => c.Invoices)
                 .ToListAsync();
@@ -36,10 +42,12 @@ namespace LogiHUB.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CustomerResponseDto>> GetById(Guid id)
         {
+            var clientId = GetClient.GetClientId(User);
+
             var customer = await _context.Customers
                 .Include(c => c.Shipments)
                 .Include(c => c.Invoices)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id && c.ClientId == clientId);
 
             if (customer == null) return NotFound();
 
@@ -51,7 +59,10 @@ namespace LogiHUB.API.Controllers
         [HttpPost]
         public async Task<ActionResult<CustomerResponseDto>> Create(CreateCustomerDto dto)
         {
+            var clientId = GetClient.GetClientId(User);
+
             var customer = _mapper.Map<Customer>(dto);
+            customer.ClientId = clientId;
             customer.CreatedDate = DateTime.UtcNow;
             _context.Customers.Add(customer);
 
@@ -66,7 +77,11 @@ namespace LogiHUB.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, UpdateCustomerDto dto)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var clientId = GetClient.GetClientId(User);
+
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.Id == id && c.ClientId == clientId);
+
             if (customer == null) return NotFound();
 
             _mapper.Map(dto, customer);
@@ -79,7 +94,11 @@ namespace LogiHUB.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var clientId = GetClient.GetClientId(User);
+
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.Id == id && c.ClientId == clientId);
+
             if (customer == null) return NotFound();
 
             // Optional: Check if this customer has shipments

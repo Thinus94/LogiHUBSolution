@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LogiHUB.Shared.DTOs
 {
@@ -19,5 +20,8 @@ namespace LogiHUB.Shared.DTOs
         public int InvoiceCount { get; set; }
 
         public DateTime CreatedDate { get; set; }
+
+        public Guid ClientId { get; set; }
+
     }
 }

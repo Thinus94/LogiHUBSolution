@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace LogiHUB.Shared.Models
@@ -20,12 +21,17 @@ namespace LogiHUB.Shared.Models
         [MaxLength(200)]
         public string Address { get; set; } = string.Empty;
 
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
         [JsonIgnore] // Prevent circular reference
         public List<Shipment> Shipments { get; set; } = new();
 
         [JsonIgnore]
         public List<Invoice> Invoices { get; set; } = new();
 
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public Guid ClientId { get; set; }
+
+        [ForeignKey(nameof(ClientId))]
+        public Client? Client { get; set; }
     }
 }

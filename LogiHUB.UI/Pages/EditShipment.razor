@@ -43,7 +43,7 @@ else
                     <label class="form-label">Status</label>
                     <InputSelect class="form-control" @bind-Value="editDto.Status">
                         <option value="Created">Created</option>
-                        <option value="In Transit">In Transit</option>
+                        <option value="In Transit">InTransit</option>
                         <option value="Delivered">Delivered</option>
                         <option value="Delayed">Delayed</option>
                         <option value="Cancelled">Cancelled</option>
@@ -131,7 +131,6 @@ else
                 @if (IsEditMode)
                 {
                     <InputSelect class="form-control" @bind-Value="editDto.CustomerId">
-                        <option value="">-- Select Customer --</option>
                         @foreach (var c in customers)
                         {
                             <option value="@c.Id">@c.Name</option>
@@ -142,7 +141,6 @@ else
                 else
                 {
                     <InputSelect class="form-control" @bind-Value="createDto.CustomerId">
-                        <option value="">-- Select Customer --</option>
                         @foreach (var c in customers)
                         {
                             <option value="@c.Id">@c.Name</option>
