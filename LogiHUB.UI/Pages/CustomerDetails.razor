@@ -21,8 +21,16 @@
                 <div><b>Email:</b> @customer.Email</div>
                 <div><b>Phone:</b> @customer.Phone</div>
                 <div><b>Address:</b> @customer.Address</div>
-                <div><b>Shipments:</b> @customer.ShipmentCount</div>
-                <div><b>Invoices:</b> @customer.InvoiceCount</div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span>Shipments:</span>
+                        <h4>@customer.ShipmentCount</h4>
+                    </div>
+                    <div class="stat-box">
+                        <span>Invoices</span>
+                        <h4>@customer.InvoiceCount</h4>
+                    </div>
+                </div>
 
             </div>
 

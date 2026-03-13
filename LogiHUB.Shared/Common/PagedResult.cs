@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-public class PagedResult<T>
+﻿public class PagedResult<T>
 {
     public List<T> Items { get; set; } = new List<T>();
 

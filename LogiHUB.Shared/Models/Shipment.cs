@@ -37,8 +37,10 @@ namespace LogiHUB.Shared.Models
         [ForeignKey(nameof(CustomerId))]
         public Customer? Customer { get; set; }
 
-        public Invoice? Invoice { get; set; }
+        public List<Invoice> Invoices { get; set; } = new();
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        public bool IsActive { get; set; } = true;
     }
 }

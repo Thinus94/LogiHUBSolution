@@ -29,7 +29,7 @@ namespace LogiHUB.API.Controllers
             var clientId = GetClient.GetClientId(User);
 
             var customers = await _context.Customers
-                .Where(c => c.ClientId == clientId)
+                .Where(c => c.ClientId == clientId && c.IsActive)
                 .Include(c => c.Shipments)
                 .Include(c => c.Invoices)
                 .ToListAsync();
@@ -106,7 +106,9 @@ namespace LogiHUB.API.Controllers
             if (hasShipments)
                 return BadRequest("Cannot delete customer with existing shipments.");
 
-            _context.Customers.Remove(customer);
+            //_context.Customers.Remove(customer);
+            // SOFT DELETE
+            customer.IsActive = false;
             await _context.SaveChangesAsync();
             return NoContent();
         }

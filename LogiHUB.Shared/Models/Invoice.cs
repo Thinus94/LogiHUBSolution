@@ -36,5 +36,7 @@ namespace LogiHUB.Shared.Models
         public Shipment? Shipment { get; set; }
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        public bool IsActive { get; set; } = true;
     }
 }

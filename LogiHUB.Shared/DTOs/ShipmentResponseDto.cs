@@ -1,5 +1,4 @@
 ﻿using LogiHUB.Shared.Enums;
-using System;
 
 namespace LogiHUB.Shared.DTOs
 {
@@ -25,9 +24,7 @@ namespace LogiHUB.Shared.DTOs
 
         public string CustomerName { get; set; } = string.Empty;
 
-        public Guid? InvoiceId { get; set; }
-
-        public string? InvoiceNumber { get; set; }
+        public int InvoiceCount { get; set; }
 
         public DateTime CreatedDate { get; set; }
     }

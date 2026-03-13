@@ -1,7 +1,5 @@
 ﻿using LogiHUB.Shared.DTOs;
-using System.Net.Http;
 using System.Net.Http.Json;
-using LogiHUB.Shared.Models;
 
 namespace LogiHUB.UI.Services
 {

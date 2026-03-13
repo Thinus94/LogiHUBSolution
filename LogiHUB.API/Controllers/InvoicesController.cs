@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using LogiHUB.API.Helpers;
 using LogiHUB.Shared.DTOs;
-using LogiHUB.Shared.Enums;
 using LogiHUB.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LogiHUB.API.Controllers
 {
@@ -25,7 +23,7 @@ namespace LogiHUB.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll(Guid? customerId)
+        public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll(Guid? customerId, Guid? shipmentId)
         {
             var clientId = GetClient.GetClientId(User);
 
@@ -36,12 +34,12 @@ namespace LogiHUB.API.Controllers
                 .AsQueryable();
 
             if (customerId.HasValue)
-            {
                 query = query.Where(i => i.CustomerId == customerId.Value);
-            }
+
+            if (shipmentId.HasValue)
+                query = query.Where(i => i.ShipmentId == shipmentId.Value);
 
             var invoices = await query.ToListAsync();
-
             return Ok(_mapper.Map<List<InvoiceResponseDto>>(invoices));
         }
 
@@ -71,6 +69,19 @@ namespace LogiHUB.API.Controllers
             if (customer == null)
                 return BadRequest("Invalid customer.");
 
+            if (dto.ShipmentId != null)
+            {
+                var shipment = await _context.Shipments
+                    .Include(s => s.Customer)
+                    .FirstOrDefaultAsync(s => s.Id == dto.ShipmentId);
+
+                if (shipment == null || shipment.Customer!.ClientId != clientId)
+                    return BadRequest("Invalid shipment.");
+
+                if (shipment.CustomerId != dto.CustomerId)
+                    return BadRequest("Shipment does not belong to the selected customer.");
+            }
+
             var invoice = _mapper.Map<Invoice>(dto);
 
             invoice.Id = Guid.NewGuid();
@@ -80,7 +91,7 @@ namespace LogiHUB.API.Controllers
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return CreatedAtAction(nameof(GetById), new { id = invoice.Id }, _mapper.Map<InvoiceResponseDto>(invoice));
         }
 
         [HttpPut("{id}")]

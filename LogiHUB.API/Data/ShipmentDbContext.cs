@@ -41,8 +41,8 @@ public class ShipmentDbContext : DbContext
 
         modelBuilder.Entity<Invoice>()
             .HasOne(i => i.Shipment)
-            .WithOne(s => s.Invoice)
-            .HasForeignKey<Invoice>(i => i.ShipmentId)
+            .WithMany(s => s.Invoices)
+            .HasForeignKey(i => i.ShipmentId)
             .OnDelete(DeleteBehavior.SetNull);
     }
 }

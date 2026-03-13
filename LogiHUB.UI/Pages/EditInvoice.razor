@@ -80,15 +80,16 @@
             }
             else
             {
-                <InputSelect class="form-control"
-                             @bind-Value="createDto.CustomerId">
-
-                    @foreach (var c in customers)
-                    {
-                        <option value="@c.Id">@c.Name</option>
-                    }
-
-                </InputSelect>
+                <div class="mb-3">
+                    <InputSelect class="form-control"
+                                 @bind-Value="createDto.CustomerId"
+                                 disabled="@(ShipmentId.HasValue)">
+                        @foreach (var c in customers)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </InputSelect>
+                </div>
             }
         </div>
 
@@ -101,20 +102,25 @@
                     <option value="">None</option>
                     @foreach (var s in shipments)
                     {
-                        <option value="@s.Id">@s.ShipmentNumber</option>
+                        <option value="@s.Id">
+                            @s.ShipmentNumber (@s.Origin → @s.Destination)
+                        </option>
                     }
                 </InputSelect>
             }
             else
             {
-                <InputSelect class="form-control"
-                             @bind-Value="createDto.ShipmentId">
-                    <option value="">None</option>
-                    @foreach (var s in shipments)
-                    {
-                        <option value="@s.Id">@s.ShipmentNumber</option>
-                    }
-                </InputSelect>
+                <div class="mb-3">
+                    <InputSelect class="form-control"
+                                 @bind-Value="createDto.ShipmentId"
+                                 disabled="@(ShipmentId.HasValue)">
+                        <option value="">None</option>
+                        @foreach (var s in shipments)
+                        {
+                            <option value="@s.Id">@s.ShipmentNumber (@s.Origin → @s.Destination)</option>
+                        }
+                    </InputSelect>
+                </div>
             }
         </div>
 
@@ -162,17 +168,15 @@
         customers = await CustomerService.GetAllAsync();
 
         var shipmentResult = await ShipmentService.GetAllAsync("", "", null, 1, 100);
-
-        shipments = shipmentResult.Items;
+        var allShipments = shipmentResult.Items;
 
         if (IsEditMode)
         {
+            // Editing an existing invoice
             var existing = await InvoiceService.GetByIdAsync(Id!.Value);
-
-            if (existing is null)
+            if (existing == null)
             {
-                // Handle missing invoice, e.g. redirect or show error
-                errorMessage = $"Error loading shipment: {ShipmentId}";
+                errorMessage = $"Invoice not found: {Id}";
                 NavigationManager.NavigateTo("/invoices");
                 return;
             }
@@ -185,14 +189,36 @@
                 Status = existing.Status,
                 CustomerId = existing.CustomerId,
                 ShipmentId = existing.ShipmentId,
-                IssueDate = existing.IssueDate
+                IssueDate = existing.IssueDate,
+                DueDate = existing.DueDate
             };
+
+            // Shipments for the selected customer
+            shipments = allShipments
+                .Where(s => s.CustomerId == editDto.CustomerId)
+                .ToList();
         }
-        else if (ShipmentId.HasValue && CustomerId != Guid.Empty)
+        else
         {
-            createDto.ShipmentId = ShipmentId;
-            createDto.CustomerId = CustomerId;
+            // Creating a new invoice
             createDto.IssueDate = DateTime.UtcNow;
+
+            if (ShipmentId.HasValue && CustomerId != Guid.Empty)
+            {
+                // Invoice created from a shipment
+                createDto.CustomerId = CustomerId;
+                createDto.ShipmentId = ShipmentId;
+
+                // Only show shipments for this customer (optional)
+                shipments = allShipments
+                    .Where(s => s.CustomerId == CustomerId)
+                    .ToList();
+            }
+            else
+            {
+                // General creation, show all shipments
+                shipments = allShipments;
+            }
         }
     }
 

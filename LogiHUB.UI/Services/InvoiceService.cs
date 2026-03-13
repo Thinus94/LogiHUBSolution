@@ -13,21 +13,27 @@ namespace LogiHUB.UI.Services
             _http = http;
         }
 
-        public async Task<List<InvoiceResponseDto>> GetAllAsync(Guid? customerId)
+        public async Task<List<InvoiceResponseDto>> GetAllAsync(Guid? customerId = null, Guid? shipmentId = null)
         {
             var url = "api/invoices";
+            var queryParams = new List<string>();
 
             if (customerId.HasValue)
-            {
-                url += $"?customerId={customerId}";
-            }
+                queryParams.Add($"customerId={customerId}");
+
+            if (shipmentId.HasValue)
+                queryParams.Add($"shipmentId={shipmentId}");
+
+            if (queryParams.Any())
+                url += "?" + string.Join("&", queryParams);
 
             var invoices = await _http.GetFromJsonAsync<List<InvoiceResponseDto>>(url)
-                           ?? new();
+                           ?? new List<InvoiceResponseDto>();
 
+            // Mark overdue invoices
             foreach (var invoice in invoices)
             {
-                if (invoice.DueDate < DateTime.Today && invoice.Status != InvoiceStatus.Paid)
+                if (invoice.DueDate.HasValue && invoice.DueDate.Value < DateTime.Today && invoice.Status != InvoiceStatus.Paid)
                 {
                     invoice.Status = InvoiceStatus.Overdue;
                 }

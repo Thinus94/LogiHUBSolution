@@ -1,6 +1,4 @@
-﻿// LogiHUB.Shared/DTOs/CreateShipmentDto.cs
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LogiHUB.Shared.DTOs
 {

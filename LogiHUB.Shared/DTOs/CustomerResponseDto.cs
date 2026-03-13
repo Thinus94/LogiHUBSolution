@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace LogiHUB.Shared.DTOs
+﻿namespace LogiHUB.Shared.DTOs
 {
     public class CustomerResponseDto
     {

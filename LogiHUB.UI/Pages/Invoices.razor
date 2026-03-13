@@ -87,6 +87,10 @@
     [SupplyParameterFromQuery]
     public Guid? CustomerId { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? ShipmentId { get; set; }
+
     private bool isLoading = true;
 
     private string? errorMessage;
@@ -101,7 +105,7 @@
         try
         {
             isLoading = true;
-            invoices = await InvoiceService.GetAllAsync(CustomerId);
+            invoices = await InvoiceService.GetAllAsync(CustomerId, ShipmentId);
         }
         catch (Exception ex)
         {

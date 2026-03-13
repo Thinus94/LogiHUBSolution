@@ -31,7 +31,7 @@ namespace LogiHUB.API.Controllers
 
             var shipmentsQuery = _context.Shipments
                 .Include(s => s.Customer)
-                .Include(s => s.Invoice)
+                .Include(s => s.Invoices)
                 .Where(s => s.Customer!.ClientId == clientId)
                 .AsQueryable();
 
@@ -80,7 +80,7 @@ namespace LogiHUB.API.Controllers
 
             var shipment = await _context.Shipments
                 .Include(s => s.Customer)
-                .Include(s => s.Invoice)
+                .Include(s => s.Invoices)
                 .FirstOrDefaultAsync(s => s.Id == id && s.Customer!.ClientId == clientId);
 
             if (shipment == null) return NotFound();

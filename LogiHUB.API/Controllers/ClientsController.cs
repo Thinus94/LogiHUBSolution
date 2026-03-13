@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using LogiHUB.Shared.Models;
 using LogiHUB.Shared.DTOs;
-using BCrypt.Net;
 
 namespace LogiHUB.API.Controllers
 {

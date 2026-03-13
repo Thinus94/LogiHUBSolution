@@ -43,7 +43,7 @@ else
                     <label class="form-label">Status</label>
                     <InputSelect class="form-control" @bind-Value="editDto.Status">
                         <option value="Created">Created</option>
-                        <option value="In Transit">InTransit</option>
+                        <option value="InTransit">In Transit</option>
                         <option value="Delivered">Delivered</option>
                         <option value="Delayed">Delayed</option>
                         <option value="Cancelled">Cancelled</option>
@@ -130,12 +130,20 @@ else
 
                 @if (IsEditMode)
                 {
-                    <InputSelect class="form-control" @bind-Value="editDto.CustomerId">
+                    <InputSelect class="form-control"
+                                 @bind-Value="editDto.CustomerId"
+                                 disabled="@(invoiceCount > 0)">
                         @foreach (var c in customers)
                         {
                             <option value="@c.Id">@c.Name</option>
                         }
                     </InputSelect>
+                    @if (invoiceCount > 0)
+                    {
+                        <small class="text-warning">
+                            Customer cannot be changed because invoices exist.
+                        </small>
+                    }
                     <ValidationMessage For="@(() => editDto.CustomerId)" />
                 }
                 else
@@ -166,7 +174,10 @@ else
 
 @code {
 
-[Parameter] public Guid? Id { get; set; }
+    private object FormModel => IsEditMode ? editDto : createDto;
+    
+    [Parameter] 
+    public Guid? Id { get; set; }
 
     private bool IsEditMode => Id.HasValue;
     private bool isLoading = false;
@@ -180,7 +191,7 @@ else
 
     private string ShipmentNumber = "";
 
-    private object FormModel => IsEditMode ? editDto : createDto;
+    private int invoiceCount = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -198,6 +209,7 @@ else
                     errorMessage = "Shipment not found.";
                     return;
                 }
+                invoiceCount = shipmentResponse.InvoiceCount;
 
                 // Map to editDto
                 editDto = new UpdateShipmentDto

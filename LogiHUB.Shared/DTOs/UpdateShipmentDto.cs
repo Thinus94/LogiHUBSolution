@@ -1,6 +1,4 @@
-﻿// LogiHUB.Shared/DTOs/UpdateShipmentDto.cs
-using LogiHUB.Shared.Enums;
-using System;
+﻿using LogiHUB.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace LogiHUB.Shared.DTOs

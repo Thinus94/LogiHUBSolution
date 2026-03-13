@@ -33,5 +33,7 @@ namespace LogiHUB.Shared.Models
 
         [ForeignKey(nameof(ClientId))]
         public Client? Client { get; set; }
+
+        public bool IsActive { get; set; } = true;
     }
 }

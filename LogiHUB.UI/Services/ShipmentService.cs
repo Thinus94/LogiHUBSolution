@@ -1,6 +1,4 @@
 ﻿using LogiHUB.Shared.DTOs;
-using LogiHUB.Shared.Models;
-using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace LogiHUB.UI.Services
