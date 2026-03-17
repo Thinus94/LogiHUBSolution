@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using LogiHUB.Shared.Models;
 using LogiHUB.Shared.DTOs;
+using LogiHUB.API.Middleware;
 
 namespace LogiHUB.API.Controllers
 {
@@ -26,7 +27,7 @@ namespace LogiHUB.API.Controllers
                 .FirstOrDefaultAsync(c => c.Email == dto.Email);
 
             if (existing != null)
-                return BadRequest("Email already registered.");
+                throw new BadRequestException("Email already registered.");
 
             var client = new Client
             {
@@ -53,13 +54,8 @@ namespace LogiHUB.API.Controllers
             var client = await _context.Clients
                 .FirstOrDefaultAsync(c => c.Email == dto.Email);
 
-            if (client == null)
-                return Unauthorized("Invalid credentials");
-
-            var validPassword = BCrypt.Net.BCrypt.Verify(dto.Password, client.PasswordHash);
-
-            if (!validPassword)
-                return Unauthorized("Invalid credentials");
+            if (client == null || !BCrypt.Net.BCrypt.Verify(dto.Password, client.PasswordHash))
+                throw new UnauthorizedException("Invalid credentials");
 
             var token = _jwtService.GenerateToken(client);
 
@@ -80,7 +76,7 @@ namespace LogiHUB.API.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (client == null)
-                return NotFound();
+                throw new NotFoundException("Client not found.");
 
             var response = new ClientResponseDto
             {
@@ -103,7 +99,7 @@ namespace LogiHUB.API.Controllers
             var client = await _context.Clients.FindAsync(id);
 
             if (client == null)
-                return NotFound();
+                throw new NotFoundException("Client not found.");
 
             client.CompanyName = dto.CompanyName;
             client.ContactName = dto.ContactName;

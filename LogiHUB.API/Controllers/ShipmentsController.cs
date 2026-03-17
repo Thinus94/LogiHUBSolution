@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LogiHUB.API.Helpers;
+using LogiHUB.API.Middleware;
 using LogiHUB.Shared.DTOs;
 using LogiHUB.Shared.Enums;
 using LogiHUB.Shared.Models;
@@ -83,7 +84,8 @@ namespace LogiHUB.API.Controllers
                 .Include(s => s.Invoices)
                 .FirstOrDefaultAsync(s => s.Id == id && s.Customer!.ClientId == clientId);
 
-            if (shipment == null) return NotFound();
+            if (shipment == null)
+                throw new NotFoundException("Shipment not found.");
 
             var response = _mapper.Map<ShipmentResponseDto>(shipment);
             return Ok(response);
@@ -99,7 +101,7 @@ namespace LogiHUB.API.Controllers
                 .FirstOrDefaultAsync(c => c.Id == dto.CustomerId && c.ClientId == clientId);
 
             if (customer == null)
-                return BadRequest("Invalid customer.");
+                throw new BadRequestException("Invalid customer.");
 
             var shipment = _mapper.Map<Shipment>(dto);
             shipment.Id = Guid.NewGuid();
@@ -124,9 +126,7 @@ namespace LogiHUB.API.Controllers
                 return BadRequest();
 
             if (!Enum.IsDefined(typeof(ShipmentStatus), dto.Status))
-            {
-                return BadRequest("Invalid shipment status.");
-            }
+                throw new BadRequestException("Invalid shipment status.");
 
             var clientId = GetClient.GetClientId(User);
 
@@ -134,7 +134,8 @@ namespace LogiHUB.API.Controllers
                 .Include(s => s.Customer)
                 .FirstOrDefaultAsync(s => s.Id == id && s.Customer!.ClientId == clientId);
 
-            if (shipment == null) return NotFound();
+            if (shipment == null)
+                throw new NotFoundException("Shipment not found.");
 
             _mapper.Map(dto, shipment);
             await _context.SaveChangesAsync();
@@ -152,7 +153,8 @@ namespace LogiHUB.API.Controllers
                 .Include(s => s.Customer)
                 .FirstOrDefaultAsync(s => s.Id == id && s.Customer!.ClientId == clientId);
 
-            if (shipment == null) return NotFound();
+            if (shipment == null)
+                throw new NotFoundException("Shipment not found.");
 
             _context.Shipments.Remove(shipment);
             await _context.SaveChangesAsync();

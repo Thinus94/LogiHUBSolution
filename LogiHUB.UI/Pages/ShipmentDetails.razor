@@ -106,11 +106,18 @@ else
                     @onclick="CreateInvoice">
                 + Create Invoice
             </button>
-            @if (shipment.InvoiceCount > 0)
+            @if (shipment.InvoiceCount > 1)
             {
                 <button class="btn btn-secondary"
                         @onclick="OpenShipmentInvoices">
-                    View Invoices (@shipment.InvoiceCount)
+                    View Invoices
+                </button>
+            }
+            @if (shipment.InvoiceCount == 1)
+            {
+                <button class="btn btn-secondary"
+                        @onclick="OpenShipmentInvoices">
+                    View Invoice
                 </button>
             }
             @if (shipment.Status == ShipmentStatus.Created && shipment.InvoiceCount == 0)

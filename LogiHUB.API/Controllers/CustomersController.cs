@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using LogiHUB.API.Helpers;
+using LogiHUB.API.Middleware;
 using LogiHUB.Shared.DTOs;
 using LogiHUB.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using LogiHUB.API.Helpers;
 
 namespace LogiHUB.API.Controllers
 {
@@ -49,7 +50,8 @@ namespace LogiHUB.API.Controllers
                 .Include(c => c.Invoices)
                 .FirstOrDefaultAsync(c => c.Id == id && c.ClientId == clientId);
 
-            if (customer == null) return NotFound();
+            if (customer == null)
+                throw new NotFoundException("Customer not found.");
 
             var response = _mapper.Map<CustomerResponseDto>(customer);
             return Ok(response);
@@ -82,7 +84,8 @@ namespace LogiHUB.API.Controllers
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.Id == id && c.ClientId == clientId);
 
-            if (customer == null) return NotFound();
+            if (customer == null)
+                throw new NotFoundException("Customer not found.");
 
             _mapper.Map(dto, customer);
             await _context.SaveChangesAsync();
@@ -99,12 +102,13 @@ namespace LogiHUB.API.Controllers
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.Id == id && c.ClientId == clientId);
 
-            if (customer == null) return NotFound();
+            if (customer == null)
+                throw new NotFoundException("Customer not found.");
 
             // Optional: Check if this customer has shipments
             var hasShipments = await _context.Shipments.AnyAsync(s => s.CustomerId == id);
             if (hasShipments)
-                return BadRequest("Cannot delete customer with existing shipments.");
+                throw new BadRequestException("Cannot delete customer with existing shipments.");
 
             //_context.Customers.Remove(customer);
             // SOFT DELETE

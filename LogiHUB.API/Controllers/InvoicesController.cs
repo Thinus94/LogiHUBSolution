@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LogiHUB.API.Helpers;
+using LogiHUB.API.Middleware;
 using LogiHUB.Shared.DTOs;
 using LogiHUB.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -53,7 +54,8 @@ namespace LogiHUB.API.Controllers
                 .Include(i => i.Shipment)
                 .FirstOrDefaultAsync(i => i.Id == id && i.Customer!.ClientId == clientId);
 
-            if (invoice == null) return NotFound();
+            if (invoice == null)
+                throw new NotFoundException("Invoice not found.");
 
             return Ok(_mapper.Map<InvoiceResponseDto>(invoice));
         }
@@ -67,7 +69,7 @@ namespace LogiHUB.API.Controllers
                 .FirstOrDefaultAsync(c => c.Id == dto.CustomerId && c.ClientId == clientId);
 
             if (customer == null)
-                return BadRequest("Invalid customer.");
+                throw new BadRequestException("Invalid customer.");
 
             if (dto.ShipmentId != null)
             {
@@ -76,10 +78,10 @@ namespace LogiHUB.API.Controllers
                     .FirstOrDefaultAsync(s => s.Id == dto.ShipmentId);
 
                 if (shipment == null || shipment.Customer!.ClientId != clientId)
-                    return BadRequest("Invalid shipment.");
+                    throw new BadRequestException("Invalid shipment.");
 
                 if (shipment.CustomerId != dto.CustomerId)
-                    return BadRequest("Shipment does not belong to the selected customer.");
+                    throw new BadRequestException("Shipment does not belong to the selected customer.");
             }
 
             var invoice = _mapper.Map<Invoice>(dto);
@@ -105,7 +107,8 @@ namespace LogiHUB.API.Controllers
                 .Include(i => i.Customer)
                 .FirstOrDefaultAsync(i => i.Id == id && i.Customer!.ClientId == clientId);
 
-            if (invoice == null) return NotFound();
+            if (invoice == null)
+                throw new NotFoundException("Invoice not found.");
 
             _mapper.Map(dto, invoice);
 
@@ -123,7 +126,8 @@ namespace LogiHUB.API.Controllers
                 .Include(i => i.Customer)
                 .FirstOrDefaultAsync(i => i.Id == id && i.Customer!.ClientId == clientId);
 
-            if (invoice == null) return NotFound();
+            if (invoice == null)
+                throw new NotFoundException("Invoice not found.");
 
             _context.Invoices.Remove(invoice);
 
