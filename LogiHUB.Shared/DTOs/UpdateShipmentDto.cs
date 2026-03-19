@@ -29,6 +29,8 @@ namespace LogiHUB.Shared.DTOs
         public Guid CustomerId { get; set; }
 
         [Required]
-        public ShipmentStatus Status { get; set; } 
+        public ShipmentStatus Status { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }

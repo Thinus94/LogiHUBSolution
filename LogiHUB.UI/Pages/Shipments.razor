@@ -23,12 +23,9 @@
     {
         <div class="alert alert-danger">@errorMessage</div>
     }
-    else if (shipments.Count == 0)
-    {
-        <p>No shipments found.</p>
-    }
     else
     {
+        <!-- ALWAYS SHOW FILTERS -->
         <div class="filter-panel">
 
             <input class="form-control"
@@ -51,77 +48,92 @@
             <select class="form-select"
                     @bind="pageSize"
                     @bind:after="OnFilterChanged">
-
                 <option @value="10">10</option>
                 <option @value="25">25</option>
                 <option @value="50">50</option>
+            </select>
 
+            <select class="form-select" 
+                    @bind="activeFilterString" 
+                    @bind:after="OnActiveChanged">
+                <option value="">All records</option>
+                <option value="true">Active records</option>
+                <option value="false">Inactive records</option>
             </select>
 
         </div>
 
-        <!-- Table -->
-        <div class="table-responsive table-container">
-            <table class="table table-glass table-hover">
-                <thead>
-                <tr>
-                    <th>Shipment Number</th>
-                    <th>Origin</th>
-                    <th>Destination</th>
-                    <th>Status</th>
-                    <th>Pickup</th>
-                    <th>Delivery</th>
-                    <th>Weight (kg)</th>
-                    <th>Customer</th>
-                    <th>Invoices</th>
-                    <th>Created Date</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var shipment in shipments)
-                {
-                    <tr @onclick="() => OpenShipment(shipment.Id)">
-                        <td>@shipment.ShipmentNumber</td>
-                        <td>@shipment.Origin</td>
-                        <td>@shipment.Destination</td>
-                        <td>
-                            <span class="status-badge @GetStatusClass(shipment.Status)">
-                                @shipment.Status.GetDisplayName()
-                            </span>
-                        </td>
-                        <td>@shipment.PickupDate.ToShortDateString()</td>
-                        <td>@shipment.DeliveryDate?.ToShortDateString()</td>
-                        <td>@shipment.WeightKg</td>
-                        <td>@shipment.CustomerName</td>
-                        <td>
-                            <span class="badge bg-info">
-                                @shipment.InvoiceCount
-                            </span>
-                        </td>
-                        <td>@shipment.CreatedDate.ToShortDateString()</td>
+        @if (shipments.Count == 0)
+        {
+            <p>No shipments found.</p>
+        }
+        else
+        {
+            <!-- Table -->
+            <div class="table-responsive table-container">
+                <table class="table table-glass table-hover">
+                    <thead>
+                    <tr>
+                        <th>Shipment Number</th>
+                        <th>Origin</th>
+                        <th>Destination</th>
+                        <th>Status</th>
+                        <th>Pickup</th>
+                        <th>Delivery</th>
+                        <th>Weight (kg)</th>
+                        <th>Customer</th>
+                        <th>Invoices</th>
+                        <th>Created Date</th>
+                        <th>Active</th>
                     </tr>
-                }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                    @foreach (var shipment in shipments)
+                    {
+                        <tr @onclick="() => OpenShipment(shipment.Id)">
+                            <td>@shipment.ShipmentNumber</td>
+                            <td>@shipment.Origin</td>
+                            <td>@shipment.Destination</td>
+                            <td>
+                                <span class="status-badge @GetStatusClass(shipment.Status)">
+                                    @shipment.Status.GetDisplayName()
+                                </span>
+                            </td>
+                            <td>@shipment.PickupDate.ToShortDateString()</td>
+                            <td>@shipment.DeliveryDate?.ToShortDateString()</td>
+                            <td>@shipment.WeightKg</td>
+                            <td>@shipment.CustomerName</td>
+                            <td>
+                                <span class="badge bg-info">
+                                    @shipment.InvoiceCount
+                                </span>
+                            </td>
+                            <td>@shipment.CreatedDate.ToShortDateString()</td>
+                            <td>@shipment.IsActive.ToString()</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
 
-        <div class="pagination-controls">
+            <div class="pagination-controls">
 
-            <button class="btn btn-secondary"
-                    disabled="@(pageNumber == 1)"
-                    @onclick="PrevPage">
-                Previous
-            </button>
+                <button class="btn btn-secondary"
+                        disabled="@(pageNumber == 1)"
+                        @onclick="PrevPage">
+                    Previous
+                </button>
 
-            <span>Page @pageNumber</span>
+                <span>Page @pageNumber</span>
 
-            <button class="btn btn-secondary"
-                    disabled="@((pageNumber * pageSize) >= totalCount)"
-                    @onclick="NextPage">
-                Next
-            </button>
+                <button class="btn btn-secondary"
+                        disabled="@((pageNumber * pageSize) >= totalCount)"
+                        @onclick="NextPage">
+                    Next
+                </button>
 
-        </div>
+            </div>
+        }
     }
 </div>
 
@@ -134,10 +146,10 @@
     private string? errorMessage;
     string searchTerm = "";
     string statusFilter = "";
-
+    private string activeFilterString = "";
+    bool? activeFilter = null;
     int pageNumber = 1;
     int pageSize = 10;
-
     int totalCount;
 
     protected override async Task OnInitializedAsync()
@@ -155,7 +167,8 @@
                 statusFilter,
                 CustomerId,
                 pageNumber,
-                pageSize);
+                pageSize,
+                activeFilter);
 
             shipments = result.Items;
             totalCount = result.TotalCount;
@@ -187,6 +200,18 @@
     {
         pageNumber = 1;
         await LoadShipments();
+    }
+
+    private async Task OnActiveChanged()
+    {
+        activeFilter = activeFilterString switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
+
+        await OnFilterChanged();
     }
 
     async Task NextPage()

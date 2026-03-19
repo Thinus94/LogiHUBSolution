@@ -25,18 +25,44 @@ namespace LogiHUB.API.Controllers
 
         // GET: api/customers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CustomerResponseDto>>> GetAll()
+        public async Task<ActionResult<PagedResult<CustomerResponseDto>>> GetAll([FromQuery] CustomerQueryDto query)
         {
             var clientId = GetClient.GetClientId(User);
 
-            var customers = await _context.Customers
-                .Where(c => c.ClientId == clientId && c.IsActive)
+            var customersQuery = _context.Customers
+                .Where(c => c.ClientId == clientId)
                 .Include(c => c.Shipments)
                 .Include(c => c.Invoices)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                customersQuery = customersQuery.Where(c =>
+                    c.Name.Contains(query.Search) ||
+                    c.Email.Contains(query.Search) ||
+                    c.Phone.Contains(query.Search));
+            }
+
+            if (query.IsActive.HasValue)
+            {
+                customersQuery = customersQuery.Where(c => c.IsActive == query.IsActive.Value);
+            }
+
+            var totalCount = await customersQuery.CountAsync();
+
+            var customers = await customersQuery
+                .OrderByDescending(c => c.CreatedDate)
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
                 .ToListAsync();
 
-            var response = _mapper.Map<List<CustomerResponseDto>>(customers);
-            return Ok(response);
+            return Ok(new PagedResult<CustomerResponseDto>
+            {
+                Items = _mapper.Map<List<CustomerResponseDto>>(customers),
+                TotalCount = totalCount,
+                PageNumber = query.PageNumber,
+                PageSize = query.PageSize
+            });
         }
 
         // GET: api/customers/{id}

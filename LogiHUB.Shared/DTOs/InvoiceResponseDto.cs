@@ -23,5 +23,12 @@ namespace LogiHUB.Shared.DTOs
         public Guid? ShipmentId { get; set; }
 
         public string? ShipmentNumber { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public InvoiceStatus DisplayStatus =>
+            DueDate.HasValue && DueDate.Value < DateTime.Today && Status != InvoiceStatus.Paid
+                ? InvoiceStatus.Overdue
+                : Status;
     }
 }

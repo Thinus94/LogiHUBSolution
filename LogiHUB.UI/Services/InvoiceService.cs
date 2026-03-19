@@ -13,33 +13,55 @@ namespace LogiHUB.UI.Services
             _http = http;
         }
 
-        public async Task<List<InvoiceResponseDto>> GetAllAsync(Guid? customerId = null, Guid? shipmentId = null)
+        public async Task<PagedResult<InvoiceResponseDto>> GetAllAsync(
+            string search,
+            string status,
+            Guid? customerId,
+            Guid? shipmentId,
+            bool? isActive,
+            int page,
+            int pageSize)
         {
-            var url = "api/invoices";
-            var queryParams = new List<string>();
+            var parameters = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                parameters.Add($"search={search}");
+
+            if (!string.IsNullOrWhiteSpace(status))
+                parameters.Add($"status={status}");
 
             if (customerId.HasValue)
-                queryParams.Add($"customerId={customerId}");
+                parameters.Add($"customerId={customerId}");
 
             if (shipmentId.HasValue)
-                queryParams.Add($"shipmentId={shipmentId}");
+                parameters.Add($"shipmentId={shipmentId}");
 
-            if (queryParams.Any())
-                url += "?" + string.Join("&", queryParams);
+            if (isActive.HasValue)
+                parameters.Add($"isActive={isActive.Value}");
 
-            var invoices = await _http.GetFromJsonAsync<List<InvoiceResponseDto>>(url)
-                           ?? new List<InvoiceResponseDto>();
+            parameters.Add($"pageNumber={page}");
+            parameters.Add($"pageSize={pageSize}");
 
-            // Mark overdue invoices
-            foreach (var invoice in invoices)
-            {
-                if (invoice.DueDate.HasValue && invoice.DueDate.Value < DateTime.Today && invoice.Status != InvoiceStatus.Paid)
-                {
-                    invoice.Status = InvoiceStatus.Overdue;
-                }
-            }
+            var url = "api/invoices?" + string.Join("&", parameters);
 
-            return invoices;
+            return await _http.GetFromJsonAsync<PagedResult<InvoiceResponseDto>>(url)
+                   ?? new PagedResult<InvoiceResponseDto>();
+        }
+
+        //Overload for simpler calls without filters
+        public async Task<PagedResult<InvoiceResponseDto>> GetAllAsync(
+            Guid? customerId = null,
+            Guid? shipmentId = null)
+        {
+            return await GetAllAsync(
+                "",              // search
+                "",              // status
+                customerId,
+                shipmentId,
+                null,            // isActive
+                1,               // page
+                1000             // pageSize (big enough)
+            );
         }
 
         public async Task<InvoiceResponseDto?> GetByIdAsync(Guid id)

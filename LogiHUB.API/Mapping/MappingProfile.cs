@@ -20,7 +20,9 @@ namespace LogiHUB.API.Mapping
                 .ForMember(dest => dest.CustomerName,
                     opt => opt.MapFrom(src => src.Customer!.Name))
                 .ForMember(dest => dest.InvoiceCount,
-                    opt => opt.MapFrom(src => src.Invoices.Count));
+                    opt => opt.MapFrom(src => src.Invoices.Count))
+                .ForMember(dest => dest.IsActive,
+                    opt => opt.MapFrom(src => src.IsActive));
 
 
             // -----------------------------
@@ -37,7 +39,9 @@ namespace LogiHUB.API.Mapping
                 .ForMember(dest => dest.InvoiceCount,
                     opt => opt.MapFrom(src => src.Invoices.Count))
                 .ForMember(dest => dest.ClientId,
-                    opt => opt.MapFrom(src => src.ClientId));
+                    opt => opt.MapFrom(src => src.ClientId))
+                .ForMember(dest => dest.IsActive,
+                    opt => opt.MapFrom(src => src.IsActive));
 
 
             // -----------------------------
@@ -52,7 +56,9 @@ namespace LogiHUB.API.Mapping
                 .ForMember(dest => dest.CustomerName,
                     opt => opt.MapFrom(src => src.Customer!.Name))
                 .ForMember(dest => dest.ShipmentNumber,
-                    opt => opt.MapFrom(src => src.Shipment != null ? src.Shipment.ShipmentNumber : null));
+                    opt => opt.MapFrom(src => src.Shipment != null ? src.Shipment.ShipmentNumber : null))
+                .ForMember(dest => dest.IsActive,
+                    opt => opt.MapFrom(src => src.IsActive));
 
 
             // -----------------------------

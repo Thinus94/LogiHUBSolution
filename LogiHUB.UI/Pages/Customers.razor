@@ -17,37 +17,87 @@
     {
         <div class="alert alert-danger">@errorMessage</div>
     }
-    else if (customers.Count == 0)
-    {
-        <p>No customers found.</p>
-    }
     else
     {
-        <div class="table-responsive table-container">
-            <table class="table table-glass table-hover">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Address</th>
-                    <th>Created Date</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var customer in customers)
-                {
-                    <tr @onclick="() => OpenCustomer(customer.Id)">
-                        <td>@customer.Name</td>
-                        <td>@customer.Email</td>
-                        <td>@customer.Phone</td>
-                        <td>@customer.Address</td>
-                            <td>@customer.CreatedDate</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
+        <div class="filter-panel">
+
+            <input class="form-control"
+                   placeholder="Search customers..."
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   @bind:after="OnFilterChanged" />
+
+            <select class="form-select"
+                    @bind="pageSize"
+                    @bind:after="OnFilterChanged">
+                <option @value="10">10</option>
+                <option @value="25">25</option>
+                <option @value="50">50</option>
+            </select>
+
+            <select class="form-select"
+                    @bind="activeFilterString"
+                    @bind:after="OnActiveChanged">
+                <option value="">All records</option>
+                <option value="true">Active records</option>
+                <option value="false">Inactive records</option>
+            </select>
+
         </div>
+
+        @if (customers.Count == 0)
+        {
+            <p>No customers found.</p>
+        }
+        else
+        {
+            <!-- TABLE -->
+            <div class="table-responsive table-container">
+                <table class="table table-glass table-hover">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Created Date</th>
+                        <th>Active</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var customer in customers)
+                    {
+                        <tr @onclick="() => OpenCustomer(customer.Id)">
+                            <td>@customer.Name</td>
+                            <td>@customer.Email</td>
+                            <td>@customer.Phone</td>
+                            <td>@customer.Address</td>
+                            <td>@customer.CreatedDate</td>
+                            <td>@customer.IsActive.ToString()</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-controls">
+
+                <button class="btn btn-secondary"
+                        disabled="@(pageNumber == 1)"
+                        @onclick="PrevPage">
+                    Previous
+                </button>
+
+                <span>Page @pageNumber</span>
+
+                <button class="btn btn-secondary"
+                        disabled="@((pageNumber * pageSize) >= totalCount)"
+                        @onclick="NextPage">
+                    Next
+                </button>
+
+            </div>
+        }
     }
 </div>
 
@@ -55,6 +105,12 @@
     private List<CustomerResponseDto> customers = new();
     private bool isLoading = true;
     private string? errorMessage;
+    string searchTerm = "";
+    private string activeFilterString = "";
+    bool? activeFilter = null;
+    int pageNumber = 1;
+    int pageSize = 10;
+    int totalCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,7 +122,15 @@
         try
         {
             isLoading = true;
-            customers = await CustomerService.GetAllAsync();
+
+            var result = await CustomerService.GetAllAsync(
+                searchTerm,
+                activeFilter,
+                pageNumber,
+                pageSize);
+
+            customers = result.Items;
+            totalCount = result.TotalCount;
         }
         catch (Exception ex)
         {
@@ -81,6 +145,36 @@
     private void OpenCustomer(Guid id)
     {
         NavigationManager.NavigateTo($"/customer/{id}");
+    }
+
+    async Task OnFilterChanged()
+    {
+        pageNumber = 1;
+        await LoadCustomers();
+    }
+
+    private async Task OnActiveChanged()
+    {
+        activeFilter = activeFilterString switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
+
+        await OnFilterChanged();
+    }
+
+    async Task NextPage()
+    {
+        pageNumber++;
+        await LoadCustomers();
+    }
+
+    async Task PrevPage()
+    {
+        pageNumber--;
+        await LoadCustomers();
     }
 
     private void CreateCustomer() => NavigationManager.NavigateTo("/edit-customer");

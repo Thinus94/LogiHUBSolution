@@ -17,7 +17,8 @@ namespace LogiHUB.UI.Services
             string status,
             Guid? customerId,
             int page,
-            int pageSize)
+            int pageSize,
+            bool? isActive)
         {
             var parameters = new List<string>();
 
@@ -29,6 +30,9 @@ namespace LogiHUB.UI.Services
 
             if (customerId.HasValue)
                 parameters.Add($"customerId={customerId}");
+
+            if (isActive.HasValue)
+                parameters.Add($"isActive={isActive.Value}");
 
             parameters.Add($"pageNumber={page}");
             parameters.Add($"pageSize={pageSize}");

@@ -23,27 +23,58 @@ namespace LogiHUB.API.Controllers
             _mapper = mapper;
         }
 
+        // GET: api/invoices
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll(Guid? customerId, Guid? shipmentId)
+        public async Task<ActionResult<PagedResult<InvoiceResponseDto>>> GetAll([FromQuery] InvoiceQueryDto query)
         {
             var clientId = GetClient.GetClientId(User);
 
-            var query = _context.Invoices
+            var invoicesQuery = _context.Invoices
                 .Include(i => i.Customer)
                 .Include(i => i.Shipment)
                 .Where(i => i.Customer!.ClientId == clientId)
                 .AsQueryable();
 
-            if (customerId.HasValue)
-                query = query.Where(i => i.CustomerId == customerId.Value);
+            if (query.CustomerId.HasValue)
+                invoicesQuery = invoicesQuery.Where(i => i.CustomerId == query.CustomerId);
 
-            if (shipmentId.HasValue)
-                query = query.Where(i => i.ShipmentId == shipmentId.Value);
+            if (query.ShipmentId.HasValue)
+                invoicesQuery = invoicesQuery.Where(i => i.ShipmentId == query.ShipmentId);
 
-            var invoices = await query.ToListAsync();
-            return Ok(_mapper.Map<List<InvoiceResponseDto>>(invoices));
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                invoicesQuery = invoicesQuery.Where(i =>
+                    i.InvoiceNumber.Contains(query.Search));
+            }
+
+            if (query.Status.HasValue)
+            {
+                invoicesQuery = invoicesQuery.Where(i => i.Status == query.Status.Value);
+            }
+
+            if (query.IsActive.HasValue)
+            {
+                invoicesQuery = invoicesQuery.Where(i => i.IsActive == query.IsActive.Value);
+            }
+
+            var totalCount = await invoicesQuery.CountAsync();
+
+            var invoices = await invoicesQuery
+                .OrderByDescending(i => i.IssueDate)
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToListAsync();
+
+            return Ok(new PagedResult<InvoiceResponseDto>
+            {
+                Items = _mapper.Map<List<InvoiceResponseDto>>(invoices),
+                TotalCount = totalCount,
+                PageNumber = query.PageNumber,
+                PageSize = query.PageSize
+            });
         }
 
+        // GET: api/invoices/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<InvoiceResponseDto>> GetById(Guid id)
         {
@@ -60,6 +91,7 @@ namespace LogiHUB.API.Controllers
             return Ok(_mapper.Map<InvoiceResponseDto>(invoice));
         }
 
+        // POST: api/invoices
         [HttpPost]
         public async Task<ActionResult> Create(CreateInvoiceDto dto)
         {
@@ -96,6 +128,7 @@ namespace LogiHUB.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = invoice.Id }, _mapper.Map<InvoiceResponseDto>(invoice));
         }
 
+        // PUT: api/invoices/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, UpdateInvoiceDto dto)
         {
@@ -117,6 +150,7 @@ namespace LogiHUB.API.Controllers
             return NoContent();
         }
 
+        // DELETE: api/invoices/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

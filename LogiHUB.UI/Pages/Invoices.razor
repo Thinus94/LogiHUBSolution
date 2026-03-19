@@ -5,11 +5,10 @@
 
 <div class="page-blur-container">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>Invoices</h3>
+    <div class="invoices-header d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Invoices</h3>
 
-        <button class="btn btn-success"
-                @onclick="CreateInvoice">
+        <button class="btn btn-success" @onclick="CreateInvoice">
             + Create Invoice
         </button>
     </div>
@@ -22,17 +21,53 @@
     {
         <div class="alert alert-danger">@errorMessage</div>
     }
-    else if (invoices.Count == 0)
-    {
-        <p>No invoices found.</p>
-    }
     else
     {
-        <div class="table-responsive table-container">
+        <div class="filter-panel">
 
-            <table class="table table-glass table-hover">
+            <input class="form-control"
+                   placeholder="Search invoices..."
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   @bind:after="OnFilterChanged" />
 
-                <thead>
+            <select class="form-select"
+                    @bind="statusFilter"
+                    @bind:after="OnFilterChanged">
+                <option value="">All Statuses</option>
+                <option value="Paid">Paid</option>
+                <option value="Pending">Pending</option>
+                <option value="Overdue">Overdue</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+
+            <select class="form-select"
+                    @bind="pageSize"
+                    @bind:after="OnFilterChanged">
+                <option @value="10">10</option>
+                <option @value="25">25</option>
+                <option @value="50">50</option>
+            </select>
+
+            <select class="form-select"
+                    @bind="activeFilterString"
+                    @bind:after="OnActiveChanged">
+                <option value="">All records</option>
+                <option value="true">Active records</option>
+                <option value="false">Inactive records</option>
+            </select>
+
+        </div>
+
+        @if (invoices.Count == 0)
+        {
+            <p>No invoices found.</p>
+        }
+        else
+        {
+            <div class="table-responsive table-container">
+                <table class="table table-glass table-hover">
+                    <thead>
                     <tr>
                         <th>Invoice</th>
                         <th>Status</th>
@@ -41,42 +76,50 @@
                         <th>Shipment</th>
                         <th>Issued</th>
                         <th>Due</th>
+                        <th>Active</th>
                     </tr>
-                </thead>
-
-                <tbody>
-
+                    </thead>
+                    <tbody>
                     @foreach (var invoice in invoices)
                     {
                         <tr @onclick="() => OpenInvoice(invoice.Id)">
-
                             <td>@invoice.InvoiceNumber</td>
-
                             <td>
                                 <span class="status-badge @GetStatusClass(invoice.Status)">
                                     @invoice.Status.GetDisplayName()
                                 </span>
                             </td>
-
                             <td>€@invoice.Amount</td>
-
                             <td>@invoice.CustomerName</td>
-
                             <td>@invoice.ShipmentNumber</td>
-
                             <td>@invoice.IssueDate.ToShortDateString()</td>
-
                             <td>@invoice.DueDate?.ToShortDateString()</td>
-
+                            <td>@invoice.IsActive.ToString()</td>
                         </tr>
                     }
+                    </tbody>
+                </table>
+            </div>
 
-                </tbody>
-            </table>
+            <div class="pagination-controls">
 
-        </div>
+                <button class="btn btn-secondary"
+                        disabled="@(pageNumber == 1)"
+                        @onclick="PrevPage">
+                    Previous
+                </button>
+
+                <span>Page @pageNumber</span>
+
+                <button class="btn btn-secondary"
+                        disabled="@((pageNumber * pageSize) >= totalCount)"
+                        @onclick="NextPage">
+                    Next
+                </button>
+
+            </div>
+        }
     }
-
 </div>
 
 @code {
@@ -92,8 +135,14 @@
     public Guid? ShipmentId { get; set; }
 
     private bool isLoading = true;
-
     private string? errorMessage;
+    private string activeFilterString = "";
+    string searchTerm = "";
+    string statusFilter = "";
+    bool? activeFilter = null;
+    int pageNumber = 1;
+    int pageSize = 10;
+    int totalCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,7 +154,18 @@
         try
         {
             isLoading = true;
-            invoices = await InvoiceService.GetAllAsync(CustomerId, ShipmentId);
+
+            var result = await InvoiceService.GetAllAsync(
+                searchTerm,
+                statusFilter,
+                CustomerId,
+                ShipmentId,
+                activeFilter,
+                pageNumber,
+                pageSize);
+
+            invoices = result.Items;
+            totalCount = result.TotalCount;
         }
         catch (Exception ex)
         {
@@ -132,6 +192,36 @@
     private void OpenInvoice(Guid id)
     {
         NavigationManager.NavigateTo($"/invoice/{id}");
+    }
+
+    async Task OnFilterChanged()
+    {
+        pageNumber = 1;
+        await LoadInvoices();
+    }
+
+    private async Task OnActiveChanged()
+    {
+        activeFilter = activeFilterString switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
+
+        await OnFilterChanged();
+    }
+
+    async Task NextPage()
+    {
+        pageNumber++;
+        await LoadInvoices();
+    }
+
+    async Task PrevPage()
+    {
+        pageNumber--;
+        await LoadInvoices();
     }
 
     private void CreateInvoice()

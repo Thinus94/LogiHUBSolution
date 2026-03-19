@@ -118,44 +118,50 @@
         {
             var shipmentResult = await Http.GetFromJsonAsync<PagedResult<ShipmentResponseDto>>(
                 "api/shipments?pageNumber=1&pageSize=1000");
-
-            var customers = await Http.GetFromJsonAsync<List<CustomerResponseDto>>("api/customers");
-
             var shipments = shipmentResult?.Items ?? new List<ShipmentResponseDto>();
+            var activeShipments = shipments.Where(s => s.IsActive);
 
-            shipmentCount = shipments.Count;
-            customerCount = customers?.Count ?? 0;
+            var customerResult = await Http.GetFromJsonAsync<PagedResult<CustomerResponseDto>>(
+                "api/customers?pageNumber=1&pageSize=1000");
+            var customers = customerResult?.Items ?? new List<CustomerResponseDto>();
+            var activeCustomers = customers.Where(c => c.IsActive);
 
-            createdCount = shipments.Count(s => s.Status == ShipmentStatus.Created);
-            inTransitCount = shipments.Count(s => s.Status == ShipmentStatus.InTransit);
-            deliveredCount = shipments.Count(s => s.Status == ShipmentStatus.Delivered);
-            delayedCount = shipments.Count(s => s.Status == ShipmentStatus.Delayed);
-            cancelledCount = shipments.Count(s => s.Status == ShipmentStatus.Cancelled);
+            var invoiceResult = await Http.GetFromJsonAsync<PagedResult<InvoiceResponseDto>>(
+                "api/invoices?pageNumber=1&pageSize=1000");
 
-            var invoices = await Http.GetFromJsonAsync<List<InvoiceResponseDto>>("api/invoices")
-                           ?? new List<InvoiceResponseDto>();
+            var invoices = invoiceResult?.Items ?? new List<InvoiceResponseDto>();
+            var activeInvoices = invoices.Where(i => i.IsActive);
 
-            totalRevenue = invoices.Sum(i => i.Amount);
+            shipmentCount = activeShipments.Count();
+            customerCount = activeCustomers.Count();
 
-            paid = invoices
+            createdCount = activeShipments.Count(s => s.Status == ShipmentStatus.Created);
+            inTransitCount = activeShipments.Count(s => s.Status == ShipmentStatus.InTransit);
+            deliveredCount = activeShipments.Count(s => s.Status == ShipmentStatus.Delivered);
+            delayedCount = activeShipments.Count(s => s.Status == ShipmentStatus.Delayed);
+            cancelledCount = activeShipments.Count(s => s.Status == ShipmentStatus.Cancelled);
+
+            totalRevenue = activeInvoices.Sum(i => i.Amount);
+
+            paid = activeInvoices
                 .Where(i => i.Status == InvoiceStatus.Paid)
                 .Sum(i => i.Amount);
 
-            outstanding = invoices
+            outstanding = activeInvoices
                 .Where(i => i.Status == InvoiceStatus.Pending)
                 .Sum(i => i.Amount);
 
-            overdue = invoices
+            overdue = activeInvoices
                 .Where(i => i.Status == InvoiceStatus.Overdue)
                 .Sum(i => i.Amount);
 
-            cancelledInv = invoices
+            cancelledInv = activeInvoices
                 .Where(i => i.Status == InvoiceStatus.Cancelled)
                 .Sum(i => i.Amount);
         }
-        catch
+        catch (Exception ex)
         {
-            // ignore errors
+            Console.WriteLine(ex.Message);
         }
     }
 }

@@ -106,18 +106,11 @@ else
                     @onclick="CreateInvoice">
                 + Create Invoice
             </button>
-            @if (shipment.InvoiceCount > 1)
+            @if (shipment.InvoiceCount > 0)
             {
                 <button class="btn btn-secondary"
                         @onclick="OpenShipmentInvoices">
-                    View Invoices
-                </button>
-            }
-            @if (shipment.InvoiceCount == 1)
-            {
-                <button class="btn btn-secondary"
-                        @onclick="OpenShipmentInvoices">
-                    View Invoice
+                    View @(shipment.InvoiceCount == 1 ? "Invoice" : "Invoices")
                 </button>
             }
             @if (shipment.Status == ShipmentStatus.Created && shipment.InvoiceCount == 0)
@@ -152,8 +145,8 @@ else
 
         if (shipment != null)
         {
-            invoices = await InvoiceService.GetAllAsync(null);
-            invoices = invoices.Where(i => i.ShipmentId == shipment.Id).ToList();
+            var result = await InvoiceService.GetAllAsync(null, shipment.Id);
+            invoices = result.Items;
         }
     }
 

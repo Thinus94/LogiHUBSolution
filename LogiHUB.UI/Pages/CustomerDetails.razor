@@ -43,17 +43,15 @@
                 @if (customer.ShipmentCount > 0)
                 {
                     <button class="btn btn-info" @onclick="ViewShipments">
-                        View Shipments
+                        View @(customer.ShipmentCount == 1 ? "Shipment" : "Shipments")
                     </button>
                 }
-
-                @if (customer.InvoiceCount > 0)
+                @if (customer.InvoiceCount > 1)
                 {
                     <button class="btn btn-success" @onclick="ViewInvoices">
-                        View Invoices
+                        View @(customer.InvoiceCount == 1 ? "Invoice" : "Invoices")
                     </button>
                 }
-                
                 @if (CanDeleteCustomer)
                 {
                     <button class="btn btn-sm btn-danger"

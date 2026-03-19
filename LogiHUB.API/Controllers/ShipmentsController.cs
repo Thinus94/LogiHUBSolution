@@ -54,6 +54,11 @@ namespace LogiHUB.API.Controllers
                 shipmentsQuery = shipmentsQuery.Where(s => s.CustomerId == query.CustomerId);
             }
 
+            if (query.IsActive.HasValue)
+            {
+                shipmentsQuery = shipmentsQuery.Where(s => s.IsActive == query.IsActive.Value);
+            }
+
             var totalCount = await shipmentsQuery.CountAsync();
 
             var shipments = await shipmentsQuery

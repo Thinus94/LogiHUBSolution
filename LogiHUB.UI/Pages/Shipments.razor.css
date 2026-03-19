@@ -58,82 +58,20 @@
     .table-glass tbody tr {
         border-bottom: 1px solid rgba(255,255,255,0.2);
         background: rgba(255,255,255,0.05);
+        cursor: pointer;
+        transition: background 0.15s ease;
     }
+
+        .table-glass tbody tr:hover {
+            background: rgba(255,255,255,0.15);
+        }
 
         /* Alternate row colors (optional) */
         .table-glass tbody tr:nth-child(even) {
             background: rgba(255,255,255,0.08);
         }
 
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-card {
-    width: 500px;
-    background: rgba(20, 25, 40, 0.95);
-    padding: 1.5rem;
-    border-radius: 10px;
-    color: white;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-body p {
-    margin-bottom: .5rem;
-}
-
-.table-glass tbody tr {
-    cursor: pointer;
-    transition: background 0.15s ease;
-}
-
-    .table-glass tbody tr:hover {
-        background: rgba(255,255,255,0.15);
-    }
-
-.status-badge {
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-/* Status Colors */
-
-.status-created {
-    background: #6c757d;
-}
-
-.status-transit {
-    background: #0d6efd;
-}
-
-.status-delivered {
-    background: #198754;
-}
-
-.status-delayed {
-    background: #ffc107;
-    color: black;
-}
-
-.status-cancelled {
-    background: #dc3545;
-}
-
 /* Filter Panel */
-
 .filter-panel {
     display: flex;
     gap: 12px;
@@ -188,3 +126,33 @@
             background: rgba(255,255,255,0.05); /*match blur style*/
             backdrop-filter: blur(12px);
         }
+
+/* Status badges */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Status Colors */
+.status-created {
+    background: #6c757d;
+}
+
+.status-transit {
+    background: #0d6efd;
+}
+
+.status-delivered {
+    background: #198754;
+}
+
+.status-delayed {
+    background: #ffc107;
+    color: black;
+}
+
+.status-cancelled {
+    background: #dc3545;
+}

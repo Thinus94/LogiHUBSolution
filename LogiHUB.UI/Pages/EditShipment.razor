@@ -50,6 +50,11 @@ else
                     </InputSelect>
                     <ValidationMessage For="@(() => editDto.Status)" />
                 </div>
+
+                <div class="mb-3 form-check">
+                    <InputCheckbox class="form-check-input" @bind-Value="editDto.IsActive" />
+                    <label class="form-check-label">Active</label>
+                </div>
             }
 
             <div class="mb-3">
@@ -199,7 +204,8 @@ else
         {
             isLoading = true;
 
-            customers = await CustomerService.GetAllAsync();
+            var result = await CustomerService.GetAllAsync();
+            customers = result.Items;
 
             if (IsEditMode)
             {
@@ -222,7 +228,8 @@ else
                     PickupDate = shipmentResponse.PickupDate,
                     DeliveryDate = shipmentResponse.DeliveryDate,
                     WeightKg = shipmentResponse.WeightKg,
-                    CustomerId = shipmentResponse.CustomerId
+                    CustomerId = shipmentResponse.CustomerId,
+                    IsActive = shipmentResponse.IsActive
                 };
 
                 // Store ShipmentNumber separately for display

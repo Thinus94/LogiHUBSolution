@@ -20,5 +20,7 @@
 
         public Guid ClientId { get; set; }
 
+        public bool IsActive { get; set; }
+
     }
 }

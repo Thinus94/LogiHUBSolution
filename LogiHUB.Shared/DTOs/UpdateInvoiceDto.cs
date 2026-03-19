@@ -24,5 +24,7 @@ namespace LogiHUB.Shared.DTOs
         public Guid CustomerId { get; set; }
 
         public Guid? ShipmentId { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }

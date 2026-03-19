@@ -54,6 +54,14 @@
             }
         </div>
         
+        @if (IsEditMode)
+        {
+            <div class="mb-3 form-check">
+                <InputCheckbox class="form-check-input" @bind-Value="editDto.IsActive" />
+                <label class="form-check-label">Active</label>
+            </div>
+        }
+
         <div class="mb-3">
             <label>Due Date</label>
             @if (IsEditMode)
@@ -140,7 +148,8 @@
 
 @code {
 
-    [Parameter] public Guid? Id { get; set; }
+    [Parameter] 
+    public Guid? Id { get; set; }
 
     [SupplyParameterFromQuery]
     public Guid? ShipmentId { get; set; }
@@ -150,24 +159,20 @@
     public Guid CustomerId { get; set; }
 
     bool IsEditMode => Id.HasValue;
-
     CreateInvoiceDto createDto = new();
-
     UpdateInvoiceDto editDto = new();
-
     List<CustomerResponseDto> customers = new();
-
     List<ShipmentResponseDto> shipments = new();
-
+    bool? activeFilter = null;
     private string? errorMessage;
-
     object FormModel => IsEditMode ? editDto : createDto;
 
     protected override async Task OnInitializedAsync()
     {
-        customers = await CustomerService.GetAllAsync();
+        var customerResult = await CustomerService.GetAllAsync();
+        customers = customerResult.Items;
 
-        var shipmentResult = await ShipmentService.GetAllAsync("", "", null, 1, 100);
+        var shipmentResult = await ShipmentService.GetAllAsync("", "", null, 1, 100, activeFilter);
         var allShipments = shipmentResult.Items;
 
         if (IsEditMode)
@@ -190,7 +195,8 @@
                 CustomerId = existing.CustomerId,
                 ShipmentId = existing.ShipmentId,
                 IssueDate = existing.IssueDate,
-                DueDate = existing.DueDate
+                DueDate = existing.DueDate,
+                IsActive = existing.IsActive
             };
 
             // Shipments for the selected customer

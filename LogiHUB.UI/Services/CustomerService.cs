@@ -12,10 +12,38 @@ namespace LogiHUB.UI.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<CustomerResponseDto>> GetAllAsync()
+        public async Task<PagedResult<CustomerResponseDto>> GetAllAsync(
+            string search,
+            bool? isActive,
+            int page,
+            int pageSize)
         {
-            return await _httpClient.GetFromJsonAsync<List<CustomerResponseDto>>("api/customers")
-                   ?? new List<CustomerResponseDto>();
+            var parameters = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                parameters.Add($"search={search}");
+
+            if (isActive.HasValue)
+                parameters.Add($"isActive={isActive.Value}");
+
+            parameters.Add($"pageNumber={page}");
+            parameters.Add($"pageSize={pageSize}");
+
+            var url = "api/customers?" + string.Join("&", parameters);
+
+            return await _httpClient.GetFromJsonAsync<PagedResult<CustomerResponseDto>>(url)
+                   ?? new PagedResult<CustomerResponseDto>();
+        }
+
+        // Overload for simpler calls without filters
+        public async Task<PagedResult<CustomerResponseDto>> GetAllAsync()
+        {
+            return await GetAllAsync(
+                "",
+                null,
+                1,
+                1000
+            );
         }
 
         public async Task<CustomerResponseDto?> GetByIdAsync(Guid id)

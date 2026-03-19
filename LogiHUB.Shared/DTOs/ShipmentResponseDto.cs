@@ -27,5 +27,7 @@ namespace LogiHUB.Shared.DTOs
         public int InvoiceCount { get; set; }
 
         public DateTime CreatedDate { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }
